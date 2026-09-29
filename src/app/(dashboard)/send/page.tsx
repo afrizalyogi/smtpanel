@@ -344,7 +344,7 @@ export default function SendPage() {
               <div className="flex items-center flex-1">
                 <input 
                   type="checkbox" 
-                  className="w-4 h-4 rounded border-border bg-transparent text-accent focus:ring-accent focus:ring-2 cursor-pointer disabled:opacity-50"
+                  className="w-4 h-4 rounded border-border bg-transparent accent-accent focus:ring-accent focus:ring-2 cursor-pointer disabled:opacity-50"
                   disabled={sendMutation.isPending}
                   {...register("readReceipt")}
                 />

@@ -155,7 +155,7 @@ export default function SettingsPage() {
                         id="includeData"
                         checked={exportState.includeData}
                         onChange={(e) => setExportState(prev => ({ ...prev, includeData: e.target.checked }))}
-                        className="w-4 h-4 rounded border-border bg-transparent text-accent focus:ring-accent focus:ring-2 cursor-pointer shrink-0"
+                        className="w-4 h-4 rounded border-border bg-transparent accent-accent focus:ring-accent focus:ring-2 cursor-pointer shrink-0"
                       />
                       <label htmlFor="includeData" className="text-sm cursor-pointer text-muted font-normal select-none">
                         Include App Data (Templates, Contacts, History)
