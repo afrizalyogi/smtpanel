@@ -202,17 +202,17 @@ export default function SendPage() {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Compose Email</h1>
-        <div className="relative">
-          <Button variant="secondary" onClick={() => setShowTemplates(!showTemplates)}>
+        <div className="relative w-full sm:w-auto">
+          <Button variant="secondary" onClick={() => setShowTemplates(!showTemplates)} className="w-full sm:w-auto">
             <FolderOpen className="h-4 w-4 mr-2" />
             Templates ({templates.length})
           </Button>
           {showTemplates && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowTemplates(false)} />
-              <div className="absolute right-0 top-full mt-2 w-80 bg-surface border border-border rounded-md shadow-lg z-50 overflow-hidden">
+              <div className="absolute right-0 left-0 sm:left-auto top-full mt-2 w-full sm:w-80 bg-surface border border-border rounded-md shadow-lg z-50 overflow-hidden">
               <div className="p-3 border-b border-border-soft flex justify-between items-center bg-surface-warm/50">
                 <span className="text-sm font-medium text-fg">Select Template</span>
                 <button type="button" onClick={() => setShowTemplates(false)} className="text-muted hover:text-fg"><X className="h-4 w-4" /></button>
