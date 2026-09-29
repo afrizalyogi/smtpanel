@@ -10,6 +10,25 @@ No databases. No telemetry. Your credentials never leave your browser unencrypte
 
 When you just need to send a quick email, test an SMTP server, or manage a lightweight campaign, setting up a full email marketing platform is overkill. SMTPanel gives you a **Cloudflare-inspired, dark-mode-first dashboard** that connects directly to your existing SMTP provider (Gmail, AWS SES, Mailgun, Postmark, etc.).
 
+
+### 🚀 The Lightweight Champion
+
+Most self-hosted email and newsletter managers require heavy server resources to run multiple database containers, cron jobs, and background workers. SMTPanel takes a fundamentally different **stateless, zero-database** approach.
+
+#### 📊 Minimum Production RAM Requirement
+
+```text
+Mailtrain v2  ████████████████████████████████  4.0 GB  (Node.js + MySQL + Redis)
+Mautic        ████████████████████████████████  4.0 GB  (PHP + MySQL)
+Listmonk      ████████████████                  2.0 GB  (Go + PostgreSQL)
+SMTPanel      ▎                                <0.1 GB  (Stateless, No DB)
+```
+
+**Why is SMTPanel virtually weightless?**
+- **Zero Databases:** Contacts, templates, and history are securely saved directly in your browser's LocalStorage. No MySQL, PostgreSQL, or Redis required.
+- **No Background Workers:** All sending processes and connections are entirely stateless.
+- **Edge-Ready:** Deploy it anywhere. You can host it on serverless platforms (like Vercel or Cloudflare Pages) which requires **0 MB of your own server RAM**, or self-host it via Docker on a tiny $3/mo 512MB VPS without breaking a sweat!
+
 ### 🔒 Privacy-First & Stateless (No Database)
 We take your security seriously. **SMTPanel has no database.** 
 * Your SMTP credentials are AES-256 encrypted on the server and stored locally on your device as a secure `HttpOnly` cookie.
