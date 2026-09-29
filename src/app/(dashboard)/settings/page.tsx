@@ -166,19 +166,19 @@ export default function SettingsPage() {
                     </Button>
                   </>
                 ) : (
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-1 text-accent"><Key className="h-4 w-4" /> Your Secure Token</Label>
-                    <p className="text-xs text-muted mb-2">Copy this token and use the same PIN to import it on another device.</p>
-                    <div className="relative">
+                  <div className="space-y-3 mt-4 border-t border-border-soft pt-4">
+                    <div>
+                      <Label className="flex items-center gap-1 text-accent"><Key className="h-4 w-4" /> Your Secure Token</Label>
+                      <p className="text-xs text-muted mb-2 mt-1">Copy this token and use the same PIN to import it on another device.</p>
                       <textarea 
                         readOnly
-                        className="flex min-h-[100px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm font-mono text-xs pr-10"
+                        className="flex min-h-[120px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm font-mono text-xs break-all"
                         value={exportState.token}
                       />
-                      <button onClick={copyToken} className="absolute right-2 top-2 p-1.5 bg-surface-warm rounded-md text-muted hover:text-fg border border-border-soft">
-                        <Copy className="h-4 w-4" />
-                      </button>
                     </div>
+                    <Button className="w-full" onClick={copyToken}>
+                      <Copy className="h-4 w-4 mr-2" /> Copy Token
+                    </Button>
                   </div>
                 )}
               </div>

@@ -177,7 +177,7 @@ export default function ConnectPage() {
                   <Label>Secure Token</Label>
                   <textarea 
                     placeholder="smtpanel://..." 
-                    className="flex min-h-[80px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    className="flex min-h-[120px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent font-mono text-xs break-all"
                     value={tokenModal.token}
                     onChange={(e) => setTokenModal(prev => ({ ...prev, token: e.target.value }))}
                   />
@@ -187,16 +187,11 @@ export default function ConnectPage() {
               {tokenModal.mode === 'export' && tokenModal.token && (
                 <div className="space-y-2">
                   <Label>Your Encrypted Token</Label>
-                  <div className="relative">
-                    <textarea 
-                      readOnly
-                      className="flex min-h-[100px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm font-mono text-xs pr-10"
-                      value={tokenModal.token}
-                    />
-                    <button onClick={copyToken} className="absolute right-2 top-2 p-1.5 bg-surface-warm rounded-md text-muted hover:text-fg border border-border-soft">
-                      <Copy className="h-4 w-4" />
-                    </button>
-                  </div>
+                  <textarea 
+                    readOnly
+                    className="flex min-h-[120px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm font-mono text-xs break-all"
+                    value={tokenModal.token}
+                  />
                 </div>
               )}
 
