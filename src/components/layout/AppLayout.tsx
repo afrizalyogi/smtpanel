@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Send, History, Settings, Menu, Mail, FileText, LogOut } from "lucide-react";
+import { LayoutDashboard, Send, History, Settings, Menu, Mail, FileText, LogOut, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: "/send", label: "Send Email", icon: Send },
   { href: "/sent", label: "Sent History", icon: History },
   { href: "/templates", label: "Templates", icon: FileText },
+  { href: "/contacts", label: "Contacts", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

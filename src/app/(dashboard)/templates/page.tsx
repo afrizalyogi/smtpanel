@@ -103,8 +103,7 @@ export default function TemplatesPage() {
       <div className="bg-warn/10 border border-warn/20 rounded-md p-4 flex items-start gap-3">
         <AlertTriangle className="h-5 w-5 text-warn shrink-0 mt-0.5" />
         <div className="text-sm text-fg">
-          <span className="font-semibold text-warn">Storage Warning:</span> SMTPanel is a stateless application. Your templates are stored locally in your browser's LocalStorage. 
-          <strong> Please export your templates regularly.</strong> If you clear your browser cache or disconnect your SMTP session, your templates will be permanently lost.
+          <span className="font-semibold text-warn">Local Storage:</span> Your data is saved only in this browser. Please export regularly. Clearing browser data or disconnecting will erase it.
         </div>
       </div>
 

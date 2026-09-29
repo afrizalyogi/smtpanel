@@ -22,7 +22,7 @@ type FormData = {
 };
 
 export default function SendPage() {
-  const { identity, addEmail, templates, saveTemplate, deleteTemplate } = useAppStore();
+  const { identity, addEmail, templates, saveTemplate, deleteTemplate, contacts } = useAppStore();
   const [showCcBcc, setShowCcBcc] = React.useState(false);
   const [showMoreOptions, setShowMoreOptions] = React.useState(false);
   const [showTemplates, setShowTemplates] = React.useState(false);
@@ -211,11 +211,17 @@ export default function SendPage() {
           <input 
             type="email" 
             placeholder="recipient@example.com"
+            list="contacts-list"
             className="flex-1 bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
             required 
             disabled={sendMutation.isPending}
             {...register("to")} 
           />
+          <datalist id="contacts-list">
+            {contacts.map(c => (
+              <option key={c.id} value={c.email}>{c.name}</option>
+            ))}
+          </datalist>
           {!showCcBcc && (
             <button 
               type="button" 

@@ -14,10 +14,16 @@ import { Key, Copy, Download } from "lucide-react";
 import { encryptWithPin } from "@/lib/client-crypto";
 
 export default function SettingsPage() {
-  const { identity, setIdentity, clearData } = useAppStore();
+  const { identity, setIdentity, clearData, templates, emails, contacts } = useAppStore();
   const router = useRouter();
   
-  const [exportState, setExportState] = React.useState<{ active: boolean; pin: string; token: string; loading: boolean }>({ active: false, pin: '', token: '', loading: false });
+  const [exportState, setExportState] = React.useState<{ 
+    active: boolean; 
+    pin: string; 
+    token: string; 
+    loading: boolean;
+    includeData: boolean;
+  }>({ active: false, pin: '', token: '', loading: false, includeData: false });
 
   const { register, handleSubmit } = useForm({
     defaultValues: {
@@ -62,12 +68,20 @@ export default function SettingsPage() {
         throw new Error(json.error || "Failed to fetch credentials.");
       }
 
-      // 2. Merge with identity
-      const payload = {
+      // 2. Merge with identity and optional app data
+      const payload: any = {
         ...json.data,
         fromName: identity.fromName,
         fromEmail: identity.fromEmail
       };
+
+      if (exportState.includeData) {
+        payload._appData = {
+          templates,
+          emails,
+          contacts
+        };
+      }
 
       // 3. Encrypt locally
       const token = await encryptWithPin(payload, exportState.pin);
@@ -83,7 +97,7 @@ export default function SettingsPage() {
   const copyToken = () => {
     navigator.clipboard.writeText(exportState.token);
     toast.success("Token copied to clipboard!");
-    setExportState({ active: false, pin: '', token: '', loading: false }); // close after copy
+    setExportState({ active: false, pin: '', token: '', loading: false, includeData: false }); // close after copy
   };
 
   return (
@@ -134,6 +148,16 @@ export default function SettingsPage() {
                         value={exportState.pin}
                         onChange={(e) => setExportState(prev => ({ ...prev, pin: e.target.value }))}
                       />
+                    </div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <input 
+                        type="checkbox" 
+                        id="includeData"
+                        checked={exportState.includeData}
+                        onChange={(e) => setExportState(prev => ({ ...prev, includeData: e.target.checked }))}
+                        className="rounded border-border bg-transparent text-accent focus:ring-accent"
+                      />
+                      <Label htmlFor="includeData" className="text-sm cursor-pointer">Include App Data (Templates, Contacts, History)</Label>
                     </div>
                     <Button className="w-full" onClick={handleGenerateExport} disabled={exportState.loading}>
                       {exportState.loading ? "Encrypting..." : "Generate Token"}

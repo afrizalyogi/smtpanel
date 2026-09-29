@@ -15,7 +15,7 @@ import { encryptWithPin, decryptWithPin } from "@/lib/client-crypto";
 
 export default function ConnectPage() {
   const router = useRouter();
-  const { isConnected, setConnected, setIdentity } = useAppStore();
+  const { isConnected, setConnected, setIdentity, importTemplates, importContacts, importHistory } = useAppStore();
 
   const { register, handleSubmit, control, setValue, getValues } = useForm({
     defaultValues: {
@@ -111,10 +111,19 @@ export default function ConnectPage() {
     setTokenModal(prev => ({ ...prev, loading: true }));
     try {
       const data = await decryptWithPin(tokenModal.token, tokenModal.pin);
+      
+      // Handle App Data if present
+      if (data._appData) {
+        if (data._appData.templates) importTemplates(data._appData.templates);
+        if (data._appData.contacts) importContacts(data._appData.contacts);
+        if (data._appData.emails) importHistory(data._appData.emails);
+        delete data._appData; // Remove before setting form values
+      }
+
       Object.entries(data).forEach(([key, value]) => {
         setValue(key as any, value);
       });
-      toast.success("Settings imported successfully!");
+      toast.success("Settings and data imported successfully!");
       setTokenModal({ isOpen: false, mode: 'import', token: '', pin: '', loading: false });
     } catch (err: any) {
       toast.error("Invalid token or incorrect PIN.");

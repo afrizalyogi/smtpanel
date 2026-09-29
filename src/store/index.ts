@@ -20,15 +20,26 @@ export type TemplateRecord = {
   html: boolean;
 };
 
+export type ContactRecord = {
+  id: string;
+  name: string;
+  email: string;
+};
+
 interface AppState {
   isConnected: boolean;
   setConnected: (connected: boolean) => void;
   emails: EmailRecord[];
   addEmail: (email: EmailRecord) => void;
+  importHistory: (emails: EmailRecord[]) => void;
   templates: TemplateRecord[];
   saveTemplate: (template: TemplateRecord) => void;
   deleteTemplate: (id: string) => void;
   importTemplates: (templates: TemplateRecord[]) => void;
+  contacts: ContactRecord[];
+  saveContact: (contact: ContactRecord) => void;
+  deleteContact: (id: string) => void;
+  importContacts: (contacts: ContactRecord[]) => void;
   stats: {
     total: number;
     success: number;
@@ -60,6 +71,29 @@ export const useAppStore = create<AppState>()(
             },
           };
         }),
+      importHistory: (newEmails) => set((state) => {
+        const existingIds = new Set(state.emails.map(e => e.id));
+        const filtered = newEmails.filter(e => !existingIds.has(e.id));
+        
+        let addedTotal = 0;
+        let addedSuccess = 0;
+        let addedFailed = 0;
+        
+        filtered.forEach(e => {
+          addedTotal++;
+          if (e.status === 'Sent') addedSuccess++;
+          else addedFailed++;
+        });
+
+        return { 
+          emails: [...filtered, ...state.emails],
+          stats: {
+            total: state.stats.total + addedTotal,
+            success: state.stats.success + addedSuccess,
+            failed: state.stats.failed + addedFailed
+          }
+        };
+      }),
       templates: [],
       saveTemplate: (template) => set((state) => ({ templates: [...state.templates, template] })),
       deleteTemplate: (id) => set((state) => ({ templates: state.templates.filter(t => t.id !== id) })),
@@ -69,6 +103,14 @@ export const useAppStore = create<AppState>()(
         const filtered = newTemplates.filter(t => !existingIds.has(t.id));
         return { templates: [...state.templates, ...filtered] };
       }),
+      contacts: [],
+      saveContact: (contact) => set((state) => ({ contacts: [...state.contacts, contact] })),
+      deleteContact: (id) => set((state) => ({ contacts: state.contacts.filter(c => c.id !== id) })),
+      importContacts: (newContacts) => set((state) => {
+        const existingIds = new Set(state.contacts.map(c => c.id));
+        const filtered = newContacts.filter(c => !existingIds.has(c.id));
+        return { contacts: [...state.contacts, ...filtered] };
+      }),
       stats: { total: 0, success: 0, failed: 0 },
       identity: { fromName: '', fromEmail: '' },
       setIdentity: (fromName, fromEmail) =>
@@ -77,6 +119,8 @@ export const useAppStore = create<AppState>()(
         set({
           isConnected: false,
           emails: [],
+          templates: [],
+          contacts: [],
           stats: { total: 0, success: 0, failed: 0 },
           identity: { fromName: '', fromEmail: '' },
         }),

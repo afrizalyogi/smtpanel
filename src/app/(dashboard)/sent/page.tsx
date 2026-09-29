@@ -7,14 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/store";
-import { Search } from "lucide-react";
+import { Search, Upload, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function SentPage() {
   const router = useRouter();
-  const emails = useAppStore((state) => state.emails);
+  const { emails, importHistory } = useAppStore();
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("All");
+  
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const filteredEmails = emails.filter((e) => {
     const matchSearch = e.to.toLowerCase().includes(search.toLowerCase()) || e.subject.toLowerCase().includes(search.toLowerCase());
@@ -22,9 +25,68 @@ export default function SentPage() {
     return matchSearch && matchStatus;
   });
 
+  const handleExport = () => {
+    if (emails.length === 0) {
+      toast.error("No history to export.");
+      return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(emails, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "smtpanel_history.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    toast.success("History exported successfully.");
+  };
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const parsed = JSON.parse(content);
+        if (Array.isArray(parsed)) {
+          importHistory(parsed);
+          toast.success(`Imported ${parsed.length} history records.`);
+        } else {
+          toast.error("Invalid history file format.");
+        }
+      } catch (err) {
+        toast.error("Failed to parse history file.");
+      }
+    };
+    reader.readAsText(file);
+    
+    // reset input
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-bold tracking-tight">Sent History</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl font-bold tracking-tight">Sent History</h1>
+        <div className="flex gap-2">
+          <input 
+            type="file" 
+            accept=".json" 
+            ref={fileInputRef} 
+            className="hidden" 
+            onChange={handleImport} 
+          />
+          <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import
+          </Button>
+          <Button onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+        </div>
+      </div>
 
       <Card>
         <CardHeader className="gap-4 md:flex-nowrap">
