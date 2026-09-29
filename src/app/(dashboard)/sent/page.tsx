@@ -100,7 +100,7 @@ export default function SentPage() {
             />
           </div>
           <select
-            className="flex h-9 w-full sm:w-[150px] rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="flex h-9 w-full sm:w-[150px] rounded-md border border-border bg-transparent pl-3 pr-8 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >

@@ -210,7 +210,7 @@ export default function TemplatesPage() {
           </div>
         ) : (
           templates.map((tpl) => (
-            <Card key={tpl.id} className="mb-0 flex flex-col relative overflow-visible">
+            <Card key={tpl.id} className="flex flex-col relative overflow-visible">
               <CardHeader className="pb-3 border-b border-border-soft flex-row justify-between items-start">
                 <div>
                   <CardTitle className="text-base truncate max-w-[180px]" title={tpl.name}>{tpl.name}</CardTitle>

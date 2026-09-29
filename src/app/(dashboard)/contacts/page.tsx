@@ -297,7 +297,7 @@ export default function ContactsPage() {
             <select 
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="h-9 w-full sm:w-40 rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              className="h-9 w-full sm:w-40 rounded-md border border-border bg-transparent pl-3 pr-8 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -324,7 +324,7 @@ export default function ContactsPage() {
           </div>
         ) : (
           filteredAndSortedContacts.map((contact) => (
-            <Card key={contact.id} className="mb-0 flex flex-col relative group overflow-visible">
+            <Card key={contact.id} className="flex flex-col relative group overflow-visible">
               <CardContent className="p-5 flex-1 flex flex-col justify-between">
                 <div className="flex justify-between items-start">
                   <div>

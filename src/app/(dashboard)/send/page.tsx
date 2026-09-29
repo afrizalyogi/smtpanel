@@ -368,7 +368,7 @@ export default function SendPage() {
             <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
               <span className="text-muted text-sm w-full sm:w-20 font-medium">Priority</span>
               <select 
-                className="w-full bg-transparent outline-none text-sm text-fg py-1 disabled:opacity-50 cursor-pointer"
+                className="w-full bg-transparent outline-none text-sm text-fg py-1 pr-8 disabled:opacity-50 cursor-pointer"
                 disabled={sendMutation.isPending}
                 {...register("priority")}
               >
