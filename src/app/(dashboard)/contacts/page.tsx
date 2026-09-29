@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/store";
 import { toast } from "sonner";
-import { Users, Upload, Download, X, Edit, Plus, MoreHorizontal, Search, ArrowUpDown } from "lucide-react";
+import { Users, Upload, Download, X, Edit, Plus, MoreHorizontal, Search, ArrowUpDown, ChevronDown } from "lucide-react";
 
 export default function ContactsPage() {
   const { contacts, saveContact, updateContact, deleteContact, importContacts } = useAppStore();
@@ -294,16 +294,19 @@ export default function ContactsPage() {
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <ArrowUpDown className="h-4 w-4 text-muted shrink-0" />
-            <select 
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="h-9 w-full sm:w-40 rounded-md border border-border bg-transparent pl-3 pr-8 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="name-asc">Name (A-Z)</option>
-              <option value="name-desc">Name (Z-A)</option>
-            </select>
+            <div className="relative w-full sm:w-40">
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="appearance-none h-9 w-full rounded-md border border-border bg-transparent pl-3 pr-8 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted pointer-events-none" />
+            </div>
           </div>
         </div>
       )}

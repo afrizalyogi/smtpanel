@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Key, Upload, X, Sun, Moon } from "lucide-react";
+import { Mail, Key, Upload, X, Sun, Moon, ChevronDown } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -196,16 +196,19 @@ export default function ConnectPage() {
 
             <div className="space-y-2">
               <Label htmlFor="encryption">Encryption</Label>
-              <select
-                id="encryption"
-                disabled={isPending}
-                className="flex h-9 w-full rounded-md border border-border bg-transparent pl-3 pr-8 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
-                {...register("encryption")}
-              >
-                <option value="STARTTLS">STARTTLS</option>
-                <option value="TLS">TLS/SSL</option>
-                <option value="None">None</option>
-              </select>
+              <div className="relative w-full">
+                <select
+                  id="encryption"
+                  disabled={isPending}
+                  className="appearance-none flex h-9 w-full rounded-md border border-border bg-transparent pl-3 pr-8 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
+                  {...register("encryption")}
+                >
+                  <option value="STARTTLS">STARTTLS</option>
+                  <option value="TLS">TLS/SSL</option>
+                  <option value="None">None</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted pointer-events-none" />
+              </div>
             </div>
 
             <div className="space-y-2">

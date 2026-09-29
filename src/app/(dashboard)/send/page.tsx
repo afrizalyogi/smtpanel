@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAppStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Paperclip, X, Save, FolderOpen } from "lucide-react";
+import { Paperclip, X, Save, FolderOpen, ChevronDown } from "lucide-react";
 import { Editor } from "@/components/ui/editor";
 
 type FormData = {
@@ -367,15 +367,18 @@ export default function SendPage() {
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
               <span className="text-muted text-sm w-full sm:w-20 font-medium">Priority</span>
-              <select 
-                className="w-full bg-transparent outline-none text-sm text-fg py-1 pr-8 disabled:opacity-50 cursor-pointer"
-                disabled={sendMutation.isPending}
-                {...register("priority")}
-              >
-                <option value="high">High</option>
-                <option value="normal">Normal</option>
-                <option value="low">Low</option>
-              </select>
+              <div className="relative flex-1 w-full">
+                <select 
+                  className="appearance-none w-full bg-transparent outline-none text-sm text-fg py-1 pr-8 disabled:opacity-50 cursor-pointer"
+                  disabled={sendMutation.isPending}
+                  {...register("priority")}
+                >
+                  <option value="high">High</option>
+                  <option value="normal">Normal</option>
+                  <option value="low">Low</option>
+                </select>
+                <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 h-4 w-4 text-muted pointer-events-none" />
+              </div>
             </div>
             <div className="px-4 py-3 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
               <Checkbox 

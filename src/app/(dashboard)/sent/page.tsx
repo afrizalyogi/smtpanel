@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/store";
-import { Search, Upload, Download } from "lucide-react";
+import { Search, Upload, Download, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -99,15 +99,18 @@ export default function SentPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <select
-            className="flex h-9 w-full sm:w-[150px] rounded-md border border-border bg-transparent pl-3 pr-8 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="All">All Status</option>
-            <option value="Sent">Sent</option>
-            <option value="Failed">Failed</option>
-          </select>
+          <div className="relative w-full sm:w-[150px]">
+            <select
+              className="appearance-none flex h-9 w-full rounded-md border border-border bg-transparent pl-3 pr-8 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="All">All Status</option>
+              <option value="Sent">Sent</option>
+              <option value="Failed">Failed</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted pointer-events-none" />
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full overflow-x-auto">
