@@ -59,12 +59,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between border-b border-border-soft p-5">
-          <div className="flex items-center gap-2">
-            <Mail className="h-6 w-6 text-fg" />
-            <span className="font-semibold tracking-wide text-fg">SMTPanel</span>
-          </div>
-          <ThemeToggle />
+        <div className="flex items-center gap-2 border-b border-border-soft p-5">
+          <Mail className="h-6 w-6 text-fg" />
+          <span className="font-semibold tracking-wide text-fg">SMTPanel</span>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 space-y-1">
@@ -90,7 +87,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
         <div className="mt-auto px-3 pb-3">
           {/* User Profile Block & Menu */}
-          <div className="relative mb-3">
+          <div className="relative">
             {showUserMenu && (
               <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
             )}
@@ -111,7 +108,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               onClick={() => setShowUserMenu(!showUserMenu)}
               className={cn(
                 "flex items-center justify-between rounded-md transition-colors p-3 cursor-pointer",
-                showUserMenu ? "bg-white/5" : "hover:bg-white/5"
+                showUserMenu ? "bg-surface-warm/50" : "hover:bg-surface-warm/50"
               )}
             >
               <div className="flex flex-col overflow-hidden">
@@ -125,11 +122,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          <div className="border-t border-border-soft pt-3">
-            <div className="flex items-center gap-2 rounded-md bg-white/5 px-3 py-2 text-sm">
-              <div className="h-2 w-2 rounded-full bg-success" />
-              <span className="font-mono text-fg text-xs">SMTP Connected</span>
-            </div>
+          <div className="mt-3 border-t border-border-soft pt-3 flex justify-between items-center px-2">
+            <span className="text-xs text-muted font-medium">Theme</span>
+            <ThemeToggle />
           </div>
         </div>
       </aside>
@@ -142,15 +137,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <Mail className="h-5 w-5 text-fg" />
             SMTPanel
           </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="rounded p-1 hover:bg-surface-warm flex items-center justify-center h-7 w-7"
-            >
-              <Menu className="h-5 w-5 text-fg" />
-            </button>
-          </div>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="rounded p-1 hover:bg-surface-warm flex items-center justify-center h-7 w-7"
+          >
+            <Menu className="h-5 w-5 text-fg" />
+          </button>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
