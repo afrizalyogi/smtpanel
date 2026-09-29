@@ -19,7 +19,7 @@ export function ThemeToggle() {
         className="flex items-center justify-center h-7 w-7 rounded-md border border-border bg-transparent hover:bg-surface-warm text-muted hover:text-fg transition-colors"
         aria-label="Toggle Theme"
       >
-        <span className="h-5 w-5" />
+        <span className="h-[18px] w-[18px]" />
       </button>
     );
   }
@@ -32,7 +32,7 @@ export function ThemeToggle() {
       title="Toggle Theme"
       aria-label="Toggle Theme"
     >
-      {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      {theme === "dark" ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
     </button>
   );
 }
