@@ -56,7 +56,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-surface transition-all duration-300 md:static md:translate-x-0 overflow-x-hidden",
+          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-surface transition-all duration-300 md:static md:translate-x-0",
           sidebarCollapsed ? "w-[72px]" : "w-[260px]",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
@@ -68,7 +68,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           }
         }}
       >
-        <div className={cn("flex items-center border-b border-border-soft p-5", sidebarCollapsed ? "justify-center px-0" : "justify-between gap-2")}>
+        <div className={cn("relative flex items-center border-b border-border-soft p-5", sidebarCollapsed ? "justify-center px-0" : "justify-between gap-2")}>
           <div className="flex items-center gap-2 overflow-hidden">
             <Mail className="h-6 w-6 text-fg shrink-0" />
             {!sidebarCollapsed && <span className="font-semibold tracking-wide text-fg whitespace-nowrap">SMTPanel</span>}
@@ -84,7 +84,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {sidebarCollapsed && (
             <button 
               onClick={() => setSidebarCollapsed(false)} 
-              className="absolute -right-3 top-6 bg-surface border border-border rounded-full p-1 text-muted hover:text-fg shadow-sm hidden md:block"
+              className="absolute -right-3 top-1/2 -translate-y-1/2 bg-surface border border-border rounded-full p-1 text-muted hover:text-fg shadow-sm hidden md:block z-50"
             >
               <PanelLeftOpen className="h-3 w-3" />
             </button>
@@ -153,7 +153,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           )}
 
-          <div className={cn("mt-3 border-t border-border-soft pt-3 flex items-center", sidebarCollapsed ? "flex-col gap-3 px-0 justify-center" : "flex-row gap-2 px-2 justify-start")}>
+          <div className={cn("mt-3 border-t border-border-soft pt-3 flex items-center overflow-hidden", sidebarCollapsed ? "flex-col gap-3 px-0 justify-center" : "flex-row gap-2 px-2 justify-start")}>
             <a 
               href="https://github.com/afrizalyogi/smtpanel"
               target="_blank"
