@@ -6,7 +6,7 @@ No databases. No telemetry. Your credentials never leave your browser unencrypte
 
 ---
 
-## ✨ Why SMTPanel?
+## Why SMTPanel?
 
 When you just need to send a quick email, test an SMTP server, or manage a lightweight campaign, setting up a full email marketing platform is overkill. SMTPanel gives you a **Cloudflare-inspired, dark-mode-first dashboard** that connects directly to your existing SMTP provider (Gmail, AWS SES, Mailgun, Postmark, etc.).
 
