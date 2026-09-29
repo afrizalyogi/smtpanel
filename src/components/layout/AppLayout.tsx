@@ -7,6 +7,7 @@ import { LayoutDashboard, Send, History, Settings, Menu, Mail, FileText, LogOut,
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store";
 import { toast } from "sonner";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -58,9 +59,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center gap-2 border-b border-border-soft p-5">
-          <Mail className="h-6 w-6 text-fg" />
-          <span className="font-semibold tracking-wide text-fg">SMTPanel</span>
+        <div className="flex items-center justify-between border-b border-border-soft p-5">
+          <div className="flex items-center gap-2">
+            <Mail className="h-6 w-6 text-fg" />
+            <span className="font-semibold tracking-wide text-fg">SMTPanel</span>
+          </div>
+          <ThemeToggle />
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 space-y-1">
@@ -138,12 +142,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <Mail className="h-5 w-5 text-fg" />
             SMTPanel
           </div>
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="rounded p-1 hover:bg-surface-warm"
-          >
-            <Menu className="h-6 w-6 text-fg" />
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="rounded p-1 hover:bg-surface-warm flex items-center justify-center h-7 w-7"
+            >
+              <Menu className="h-5 w-5 text-fg" />
+            </button>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">

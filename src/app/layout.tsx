@@ -17,12 +17,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen bg-bg text-fg text-sm antialiased`}>
         <Providers>
           {children}
           <Toaster 
-            theme="dark" 
+            theme="system" 
             toastOptions={{
               className: 'bg-surface border-border text-fg rounded-md shadow-lg',
               style: {

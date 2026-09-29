@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Key, Upload, X } from "lucide-react";
+import { Mail, Key, Upload, X, Sun, Moon } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -240,6 +241,9 @@ export default function ConnectPage() {
               >
                 <Upload className="h-3.5 w-3.5" /> Import Settings
               </button>
+              
+              <ThemeToggle />
+
               <a 
                 href="https://github.com/afrizalyogi/smtpanel"
                 target="_blank"
