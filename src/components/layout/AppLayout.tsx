@@ -56,7 +56,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-surface transition-all duration-300 md:static md:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-surface transition-all duration-300 md:static md:translate-x-0 overflow-x-hidden",
           sidebarCollapsed ? "w-[72px]" : "w-[260px]",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
@@ -91,7 +91,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           )}
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4 space-y-1">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 space-y-1">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard");
             return (
