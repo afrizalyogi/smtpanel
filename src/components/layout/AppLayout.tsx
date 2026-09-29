@@ -173,7 +173,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </button>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 flex flex-col relative">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 relative block">
           {mounted && !hasSeenWarning && (
             <div className="bg-warn/10 border border-warn/20 rounded-md p-4 flex items-start justify-between gap-3 mb-6 shrink-0 animate-slide-down shadow-sm">
               <div className="flex items-start gap-3">
