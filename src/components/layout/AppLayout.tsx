@@ -22,7 +22,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const [showUserMenu, setShowUserMenu] = React.useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
   const { identity, clearData } = useAppStore();
 
@@ -33,7 +32,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const handleDisconnect = async () => {
     try {
-      setShowUserMenu(false);
       await fetch('/api/smtp/disconnect', { method: 'POST' });
       clearData();
       toast.success("SMTP Disconnected.");
@@ -115,55 +113,41 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="mt-auto px-3 pb-3">
-          {/* User Profile Block & Menu */}
+          {/* User Profile Block */}
           {!sidebarCollapsed && (
-            <div className="relative">
-              {showUserMenu && (
-                <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
-              )}
-              
-              {showUserMenu && (
-                <div className="absolute bottom-full left-0 mb-1 w-full bg-surface border border-border-soft rounded-md shadow-lg z-50 overflow-hidden animate-fade-in">
-                  <button 
-                    onClick={handleDisconnect}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-danger hover:bg-danger/10 transition-colors text-left"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Disconnect SMTP
-                  </button>
-                </div>
-              )}
-
-              <div 
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className={cn(
-                  "flex items-center justify-between rounded-md transition-colors p-3 cursor-pointer",
-                  showUserMenu ? "bg-surface-warm/50" : "hover:bg-surface-warm/50"
-                )}
-              >
-                <div className="flex flex-col overflow-hidden">
-                  <span className="truncate text-sm font-medium text-fg">
-                    {identity.fromName || "No Name"}
-                  </span>
-                  <span className="truncate text-xs text-muted">
-                    {identity.fromEmail || "No Email"}
-                  </span>
-                </div>
+            <div className="flex items-center justify-between rounded-md p-3 pb-1">
+              <div className="flex flex-col overflow-hidden">
+                <span className="truncate text-sm font-medium text-fg">
+                  {identity.fromName || "No Name"}
+                </span>
+                <span className="truncate text-xs text-muted">
+                  {identity.fromEmail || "No Email"}
+                </span>
               </div>
             </div>
           )}
 
-          <div className={cn("mt-3 border-t border-border-soft pt-3 flex items-center overflow-hidden", sidebarCollapsed ? "flex-col gap-3 px-0 justify-center" : "flex-row gap-2 px-2 justify-start")}>
-            <a 
-              href="https://github.com/afrizalyogi/smtpanel"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center h-7 w-7 rounded-md border border-border bg-transparent hover:bg-surface-warm text-muted hover:text-fg transition-colors shrink-0"
-              title="View Source on GitHub"
+          <div className={cn("mt-3 border-t border-border-soft pt-3 flex items-center overflow-hidden", sidebarCollapsed ? "flex-col gap-3 px-0 justify-center" : "flex-row justify-between px-2")}>
+            <div className="flex gap-2">
+              <a 
+                href="https://github.com/afrizalyogi/smtpanel"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center h-7 w-7 rounded-md border border-border bg-transparent hover:bg-surface-warm text-muted hover:text-fg transition-colors shrink-0"
+                title="View Source on GitHub"
+              >
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 9 18.13V22"></path></svg>
+              </a>
+              <ThemeToggle />
+            </div>
+            
+            <button 
+              onClick={handleDisconnect}
+              title="Disconnect SMTP"
+              className="flex items-center justify-center h-7 w-7 rounded-md border border-border bg-transparent hover:bg-danger/10 text-muted hover:text-danger transition-colors shrink-0"
             >
-              <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 9 18.13V22"></path></svg>
-            </a>
-            <ThemeToggle />
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </aside>
