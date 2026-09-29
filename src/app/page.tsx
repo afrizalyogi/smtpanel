@@ -257,6 +257,12 @@ export default function ConnectPage() {
           </form>
         </CardContent>
       </Card>
+
+      <footer className="absolute bottom-6 left-0 w-full text-center px-4">
+        <p className="text-xs text-muted/60 max-w-lg mx-auto leading-relaxed">
+          <strong>SMTPanel</strong> is an open-source, stateless SMTP web client. Connect to any SMTP server securely without a database. Privacy-first, lightweight, and perfect for self-hosting on serverless edges or low-memory VPS.
+        </p>
+      </footer>
     </div>
   );
 }

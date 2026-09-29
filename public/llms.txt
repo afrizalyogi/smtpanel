@@ -1,0 +1,27 @@
+# SMTPanel
+
+SMTPanel is an open-source, privacy-first, stateless SMTP web client built with Next.js (App Router), Tailwind CSS, TanStack Query, and Zustand.
+
+## Core Philosophy
+Unlike heavy marketing platforms (Mautic, Mailtrain) or database-backed newsletter tools (Listmonk), SMTPanel requires **zero databases**. 
+- It uses the Web Crypto API (AES-GCM) to encrypt SMTP credentials into a secure HttpOnly cookie.
+- All user data, including contacts, sent history, and HTML email templates, are stored entirely in the user's browser `localStorage`.
+- It can be hosted on a $3/mo VPS (using less than 100MB RAM) or deployed to serverless edge platforms like Vercel and Cloudflare Pages with zero persistent storage requirements.
+
+## Key Features
+- **Bring Your Own SMTP**: Works with Gmail, AWS SES, Resend, Postmark, Mailgun, and custom SMTP servers.
+- **Client-Side Encryption**: A user-defined PIN creates a "Master Token" to securely import/export configurations across devices.
+- **Visual Editor**: Integrated WYSIWYG editor (react-quill-new) for drafting HTML emails.
+- **Contact Management**: Tagging, autocomplete (To, Cc, Bcc, Reply-To), and full management using local storage.
+- **Dark Mode First**: A beautiful, Cloudflare-inspired minimalist UI with full Light/Dark mode support via `next-themes`.
+
+## Tech Stack
+- Framework: Next.js (App Router)
+- Styling: Tailwind CSS
+- State Management: Zustand (with persist middleware)
+- Data Fetching: TanStack Query
+- Email Engine: Nodemailer
+- Icons: Lucide React
+
+## Audience
+Developers, marketers, and privacy-conscious users who need a quick, safe, and beautiful web interface to send emails without the overhead of setting up databases or managing complex infrastructure.
