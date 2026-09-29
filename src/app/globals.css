@@ -73,38 +73,33 @@
   to { transform: translateX(0); opacity: 1; }
 }
 
-body {
-  background-color: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-sans);
-}
+@layer base {
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+  }
 
-/* Base resets & styles mimicking index.html */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+  /* Base resets & styles mimicking index.html */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
 
-button, input, select, textarea {
-  font: inherit;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--fg);
-  border-radius: 6px;
-  padding: 8px 12px;
-}
-button {
-  cursor: pointer;
-  transition: background 150ms;
-  font-weight: 500;
-}
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: var(--focus-ring);
+  button, input, select, textarea {
+    font: inherit;
+    color: var(--fg);
+  }
+
+  button {
+    cursor: pointer;
+    transition: background 150ms;
+    font-weight: 500;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 }
 
 /* Fix for native select dropdown options in dark mode */

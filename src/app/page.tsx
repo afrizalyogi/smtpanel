@@ -137,7 +137,7 @@ export default function ConnectPage() {
             
             <div className="space-y-4 flex-1 overflow-y-auto">
               <p className="text-sm text-muted">
-                Paste your secure token and enter the PIN used to encrypt it.
+                Paste your secure token and enter the PIN.
               </p>
               
               <div className="space-y-2">
