@@ -231,7 +231,7 @@ export default function SendPage() {
                       <div className="text-sm font-semibold text-fg truncate">
                         {tpl.name}
                       </div>
-                      <div className="text-xs text-muted truncate mt-1">
+                      <div className="text-sm text-muted truncate mt-1">
                         {tpl.subject}
                       </div>
                     </button>
@@ -410,7 +410,7 @@ export default function SendPage() {
         {attachments.length > 0 && (
           <div className="px-4 pb-4 space-y-2">
             {attachments.map((file, i) => (
-              <div key={i} className="flex items-center justify-between bg-surface-warm border border-border-soft rounded-md px-3 py-2 text-xs">
+              <div key={i} className="flex items-center justify-between bg-surface-warm border border-border-soft rounded-md px-3 py-2 text-sm">
                 <span className="flex items-center gap-2 text-fg">
                   <Paperclip className="h-3 w-3" />
                   {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)

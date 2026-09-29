@@ -142,7 +142,7 @@ export default function SettingsPage() {
                   <>
                     <div className="space-y-2">
                       <Label className="flex items-center gap-1"><Key className="h-4 w-4" /> Secure Token PIN</Label>
-                      <p className="text-xs text-muted">Create a PIN to encrypt your credentials before exporting.</p>
+                      <p className="text-sm text-muted">Create a PIN to encrypt your credentials before exporting.</p>
                       <Input 
                         type="password" 
                         placeholder="e.g. 12345" 
@@ -164,10 +164,10 @@ export default function SettingsPage() {
                   <div className="space-y-4 border-t border-border-soft pt-4">
                     <div className="space-y-2">
                       <Label className="flex items-center gap-1 text-accent"><Key className="h-4 w-4" /> Your Secure Token</Label>
-                      <p className="text-xs text-muted">Copy this token and use the same PIN to import it on another device.</p>
+                      <p className="text-sm text-muted">Copy this token and use the same PIN to import it on another device.</p>
                       <textarea 
                         readOnly
-                        className="flex min-h-[120px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm font-mono text-xs break-all"
+                        className="flex min-h-[120px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm font-mono break-all"
                         value={exportState.token}
                       />
                     </div>

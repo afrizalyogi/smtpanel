@@ -361,7 +361,7 @@ export default function ContactsPage() {
                 {contact.tags && contact.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-4">
                     {contact.tags.map(t => (
-                      <span key={t} className="bg-surface-warm text-muted px-2 py-0.5 rounded-full text-[10px] font-medium border border-border-soft">
+                      <span key={t} className="bg-surface-warm text-muted px-2 py-0.5 rounded-full text-xs font-medium border border-border-soft">
                         {t}
                       </span>
                     ))}

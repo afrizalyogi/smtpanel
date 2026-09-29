@@ -214,7 +214,7 @@ export default function TemplatesPage() {
               <CardHeader className="pb-3 border-b border-border-soft flex-row justify-between items-start">
                 <div>
                   <CardTitle className="text-base truncate max-w-[180px]" title={tpl.name}>{tpl.name}</CardTitle>
-                  <p className="text-xs text-muted mt-1 truncate max-w-[180px]">{tpl.subject}</p>
+                  <p className="text-sm text-muted mt-1 truncate max-w-[180px]">{tpl.subject}</p>
                 </div>
                 <div className="relative">
                   <button 
