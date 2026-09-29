@@ -83,15 +83,15 @@ export default function ConnectPage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center pb-2">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
-            <Mail className="h-6 w-6 text-accent" />
+        <div className="flex flex-col items-center justify-center text-center px-6 pt-8 pb-4">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
+            <Mail className="h-7 w-7 text-accent" />
           </div>
-          <CardTitle className="text-2xl">SMTP Connect</CardTitle>
-          <p className="text-muted text-sm mt-2">
+          <CardTitle className="text-2xl mb-2">SMTP Connect</CardTitle>
+          <p className="text-muted text-sm max-w-sm mx-auto">
             Connect your SMTP server and manage email sending from a simple, secure dashboard.
           </p>
-        </CardHeader>
+        </div>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
