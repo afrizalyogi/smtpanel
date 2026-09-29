@@ -236,7 +236,7 @@ export default function ConnectPage() {
               <button 
                 type="button" 
                 onClick={handleOpenImport}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border bg-surface-warm/50 hover:bg-surface-warm text-xs font-medium text-muted hover:text-fg transition-colors"
+                className="flex items-center gap-1.5 px-3 h-7 rounded-md border border-border bg-surface-warm/50 hover:bg-surface-warm text-xs font-medium text-muted hover:text-fg transition-colors"
               >
                 <Upload className="h-3.5 w-3.5" /> Import Settings
               </button>
@@ -244,7 +244,7 @@ export default function ConnectPage() {
                 href="https://github.com/afrizalyogi/smtpanel"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center p-1.5 rounded-md border border-border bg-surface-warm/50 hover:bg-surface-warm text-muted hover:text-fg transition-colors"
+                className="flex items-center justify-center h-7 w-7 rounded-md border border-border bg-surface-warm/50 hover:bg-surface-warm text-muted hover:text-fg transition-colors"
                 title="View Source on GitHub"
               >
                 <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 9 18.13V22"></path></svg>
