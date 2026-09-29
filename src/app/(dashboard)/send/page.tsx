@@ -274,7 +274,7 @@ export default function SendPage() {
             <button 
               type="button" 
               onClick={() => setShowCcBcc(true)}
-              className="text-sm font-medium text-muted hover:text-fg px-2 py-1 transition-colors w-full sm:w-auto text-left sm:text-center mt-1 sm:mt-0 -ml-2 sm:ml-0"
+              className="whitespace-nowrap shrink-0 text-sm font-medium text-muted hover:text-fg px-2 py-1 transition-colors w-full sm:w-auto text-left sm:text-center mt-1 sm:mt-0 -ml-2 sm:ml-0"
             >
               Cc / Bcc
             </button>
@@ -337,7 +337,7 @@ export default function SendPage() {
               <button 
                 type="button" 
                 onClick={() => setShowMoreOptions(true)}
-                className="text-sm font-medium text-muted hover:text-fg px-2 py-1 transition-colors sm:ml-2 w-full sm:w-auto text-left sm:text-center mt-1 sm:mt-0 -ml-2 sm:ml-0"
+                className="whitespace-nowrap shrink-0 text-sm font-medium text-muted hover:text-fg px-2 py-1 transition-colors sm:ml-2 w-full sm:w-auto text-left sm:text-center mt-1 sm:mt-0 -ml-2 sm:ml-0"
               >
                 More Options
               </button>
