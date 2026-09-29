@@ -26,8 +26,9 @@ export default function SendPage() {
   const [showCcBcc, setShowCcBcc] = React.useState(false);
   const [showMoreOptions, setShowMoreOptions] = React.useState(false);
   const [showTemplates, setShowTemplates] = React.useState(false);
+  const [showContacts, setShowContacts] = React.useState(false);
   const [attachments, setAttachments] = React.useState<File[]>([]);
-  const { register, handleSubmit, reset, setValue, watch } = useForm<FormData>({
+  const { register, handleSubmit, reset, setValue, watch, setFocus } = useForm<FormData>({
     defaultValues: {
       priority: "normal",
       readReceipt: false,
@@ -43,6 +44,13 @@ export default function SendPage() {
   
   const watchBody = watch("body");
   const watchSubject = watch("subject");
+  const watchTo = watch("to");
+
+  const filteredContacts = React.useMemo(() => {
+    if (!watchTo || watchTo.length < 1) return [];
+    const lower = watchTo.toLowerCase();
+    return contacts.filter(c => c.name.toLowerCase().includes(lower) || c.email.toLowerCase().includes(lower));
+  }, [watchTo, contacts]);
 
   const fromDisplay = identity.fromName && identity.fromEmail 
     ? `${identity.fromName} <${identity.fromEmail}>`
@@ -185,9 +193,9 @@ export default function SendPage() {
                       key={tpl.id} 
                       type="button" 
                       onClick={() => loadTemplate(tpl.id)} 
-                      className="w-full text-left p-3 rounded-md border border-border-soft bg-surface hover:bg-surface-warm hover:border-accent/40 hover:shadow-sm transition-all group block"
+                      className="w-full text-left p-3 rounded-md border border-border-soft bg-surface hover:bg-accent/10 hover:border-accent/30 hover:shadow-sm transition-all block"
                     >
-                      <div className="text-sm font-semibold text-fg group-hover:text-accent transition-colors truncate">
+                      <div className="text-sm font-semibold text-fg truncate">
                         {tpl.name}
                       </div>
                       <div className="text-xs text-muted truncate mt-1">
@@ -211,22 +219,42 @@ export default function SendPage() {
         </div>
 
         {/* To Field with Cc/Bcc Toggle */}
-        <div className="flex items-center px-4 py-2.5 border-b border-border-soft group focus-within:bg-surface-warm/10 transition-colors">
+        <div className="flex items-center px-4 py-2.5 border-b border-border-soft group focus-within:bg-surface-warm/10 transition-colors relative">
           <span className="text-muted text-sm w-20 font-medium">To</span>
-          <input 
-            type="email" 
-            placeholder="recipient@example.com"
-            list="contacts-list"
-            className="flex-1 bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
-            required 
-            disabled={sendMutation.isPending}
-            {...register("to")} 
-          />
-          <datalist id="contacts-list">
-            {contacts.map(c => (
-              <option key={c.id} value={c.email}>{c.name}</option>
-            ))}
-          </datalist>
+          <div className="flex-1 flex items-center relative">
+            <input 
+              type="email" 
+              placeholder="recipient@example.com"
+              className="flex-1 bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
+              required 
+              disabled={sendMutation.isPending}
+              autoComplete="off"
+              {...register("to", {
+                onBlur: () => setTimeout(() => setShowContacts(false), 200),
+                onChange: () => setShowContacts(true)
+              })} 
+            />
+            
+            {showContacts && filteredContacts.length > 0 && (
+              <div className="absolute top-full left-0 mt-1 w-full max-w-md bg-surface border border-border rounded-md shadow-lg z-50 overflow-hidden max-h-60 overflow-y-auto">
+                {filteredContacts.map(c => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      setValue("to", c.email, { shouldValidate: true });
+                      setShowContacts(false);
+                    }}
+                    className="w-full text-left p-3 border-b border-border-soft bg-surface hover:bg-accent/10 transition-colors flex flex-col last:border-b-0"
+                  >
+                    <span className="text-sm font-semibold text-fg">{c.name}</span>
+                    <span className="text-xs text-muted">{c.email}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
           {!showCcBcc && (
             <button 
               type="button" 

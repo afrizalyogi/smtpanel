@@ -11,6 +11,9 @@ const getDerivationAlgorithm = (salt: Uint8Array) => ({
 });
 
 async function getKeyMaterial(pin: string) {
+  if (typeof window !== 'undefined' && (!window.crypto || !window.crypto.subtle)) {
+    throw new Error('Secure Context Required: Please access this app via HTTPS or localhost to use encryption features.');
+  }
   const enc = new TextEncoder();
   return crypto.subtle.importKey(
     'raw',
