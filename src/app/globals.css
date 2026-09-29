@@ -156,3 +156,22 @@ option {
   background-color: var(--surface);
   border-color: var(--border);
 }
+
+/* Mobile Specific Editor Overrides */
+@media (max-width: 640px) {
+  .editor-container .ql-formats:first-child {
+    width: 100%;
+    margin-right: 0 !important;
+  }
+  .editor-container .ql-snow .ql-picker.ql-header {
+    width: 100% !important;
+  }
+  .editor-container .ql-snow .ql-picker-label {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+  }
+  .editor-container .ql-snow .ql-picker-options {
+    width: 100% !important;
+  }
+}
