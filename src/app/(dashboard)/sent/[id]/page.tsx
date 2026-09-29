@@ -108,21 +108,21 @@ export default function EmailDetailPage() {
           </Button>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="grid grid-cols-[100px_1fr] gap-x-4 gap-y-2 mb-6 text-sm">
+          <div className="flex flex-col sm:grid sm:grid-cols-[100px_1fr] gap-x-4 gap-y-2 mb-6 text-sm">
             <div className="font-medium text-muted">From</div>
-            <div className="font-mono">{fromDisplay || "Not configured"}</div>
+            <div className="font-mono break-all">{fromDisplay || "Not configured"}</div>
             
             <div className="font-medium text-muted">To</div>
-            <div className="font-mono">{email.to}</div>
+            <div className="font-mono break-all">{email.to}</div>
             
             <div className="font-medium text-muted">Subject</div>
-            <div className="font-medium">{email.subject}</div>
+            <div className="font-medium break-all">{email.subject}</div>
             
             <div className="font-medium text-muted">Sent at</div>
-            <div className="text-muted">{email.date}</div>
+            <div className="text-muted break-all">{email.date}</div>
             
             <div className="font-medium text-muted">Message ID</div>
-            <div className="font-mono text-muted">{email.msgId}</div>
+            <div className="font-mono text-muted break-all">{email.msgId}</div>
           </div>
           
           <hr className="border-border-soft my-6" />

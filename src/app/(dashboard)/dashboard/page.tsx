@@ -15,7 +15,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight mb-1">Overview</h1>
           <p className="text-muted">SMTP connection and sending statistics.</p>

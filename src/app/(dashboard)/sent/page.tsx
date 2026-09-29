@@ -69,7 +69,7 @@ export default function SentPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Sent History</h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <input 
             type="file" 
             accept=".json" 

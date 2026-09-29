@@ -202,7 +202,7 @@ export default function SendPage() {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Compose Email</h1>
         <div className="relative">
           <Button variant="secondary" onClick={() => setShowTemplates(!showTemplates)}>
@@ -422,7 +422,7 @@ export default function SendPage() {
         )}
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between px-4 py-3 bg-surface-warm/30 border-t border-border-soft">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 px-4 py-3 bg-surface-warm/30 border-t border-border-soft">
           <div className="relative">
             <input 
               type="file" 

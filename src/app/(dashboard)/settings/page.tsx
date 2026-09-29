@@ -126,7 +126,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4 border-b border-border-soft pb-4">
+            <div className="flex flex-wrap gap-3 pt-4 border-b border-border-soft pb-4">
               <Button variant="secondary" onClick={() => toast.success("Connection test successful.")}>
                 Test Connection
               </Button>

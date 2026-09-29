@@ -149,7 +149,7 @@ export default function TemplatesPage() {
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Templates</h1>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <input 
             type="file" 
             accept=".json" 

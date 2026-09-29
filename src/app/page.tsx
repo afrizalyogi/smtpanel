@@ -233,7 +233,7 @@ export default function ConnectPage() {
               {isPending ? "Testing Connection..." : "Test Connection & Connect"}
             </Button>
 
-            <div className="flex gap-2 justify-center items-center mt-2">
+            <div className="flex flex-wrap gap-2 justify-center items-center mt-2">
               <button 
                 type="button" 
                 onClick={handleOpenImport}
