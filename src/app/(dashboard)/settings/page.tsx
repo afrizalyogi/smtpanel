@@ -110,7 +110,7 @@ export default function SettingsPage() {
             <CardTitle>SMTP Configuration</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="text-sm text-muted mb-4">
+            <div className="text-sm text-muted">
               Your SMTP credentials are encrypted and stored in a secure HTTP-only cookie.
             </div>
             
@@ -141,7 +141,7 @@ export default function SettingsPage() {
                   <>
                     <div className="space-y-2">
                       <Label className="flex items-center gap-1"><Key className="h-4 w-4" /> Secure Token PIN</Label>
-                      <p className="text-xs text-muted mb-2">Create a PIN to encrypt your credentials before exporting.</p>
+                      <p className="text-xs text-muted">Create a PIN to encrypt your credentials before exporting.</p>
                       <Input 
                         type="password" 
                         placeholder="e.g. 12345" 
@@ -149,7 +149,7 @@ export default function SettingsPage() {
                         onChange={(e) => setExportState(prev => ({ ...prev, pin: e.target.value }))}
                       />
                     </div>
-                    <div className="flex items-center gap-3 mt-4 mb-2">
+                    <div className="flex items-center gap-3">
                       <input 
                         type="checkbox" 
                         id="includeData"
@@ -166,10 +166,10 @@ export default function SettingsPage() {
                     </Button>
                   </>
                 ) : (
-                  <div className="space-y-3 mt-4 border-t border-border-soft pt-4">
-                    <div>
+                  <div className="space-y-4 border-t border-border-soft pt-4">
+                    <div className="space-y-2">
                       <Label className="flex items-center gap-1 text-accent"><Key className="h-4 w-4" /> Your Secure Token</Label>
-                      <p className="text-xs text-muted mb-2 mt-1">Copy this token and use the same PIN to import it on another device.</p>
+                      <p className="text-xs text-muted">Copy this token and use the same PIN to import it on another device.</p>
                       <textarea 
                         readOnly
                         className="flex min-h-[120px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm font-mono text-xs break-all"
@@ -213,7 +213,7 @@ export default function SettingsPage() {
               <CardTitle className="text-danger">Security & Data</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted text-sm mb-4">
+              <p className="text-muted text-sm">
                 Disconnecting will remove your securely stored SMTP credentials from the server's session cookie and <strong>clear your local browser history and templates</strong>.
               </p>
               <Button 

@@ -203,7 +203,7 @@ export default function ContactsPage() {
               )}
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3">
               <Button type="submit" className="flex-1 md:flex-none">
                 {editingId ? "Update Contact" : "Save Contact"}
               </Button>
@@ -217,7 +217,7 @@ export default function ContactsPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {contacts.length === 0 ? (
           <div className="col-span-full py-12 text-center border border-dashed border-border-soft rounded-lg">
             <Users className="h-8 w-8 text-muted mx-auto mb-3" />

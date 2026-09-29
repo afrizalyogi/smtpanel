@@ -225,7 +225,7 @@ export default function ConnectPage() {
               <Input id="password" type="password" placeholder="••••••••••••" required disabled={isPending} {...register("password")} />
             </div>
 
-            <div className="border-t border-border-soft my-6 pt-4 space-y-4">
+            <div className="border-t border-border-soft pt-4 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="fromName">From Name</Label>
@@ -242,7 +242,7 @@ export default function ConnectPage() {
               {isPending ? "Testing Connection..." : "Test Connection & Connect"}
             </Button>
 
-            <div className="flex gap-2 justify-center mt-2">
+            <div className="flex gap-2 justify-center">
               <button 
                 type="button" 
                 onClick={handleOpenImport}
