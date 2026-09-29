@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Code, Key, Upload, Copy, X } from "lucide-react";
+import { Mail, Code, Key, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useAppStore } from "@/store";
 import { useMutation } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
-import { encryptWithPin, decryptWithPin } from "@/lib/client-crypto";
+import { decryptWithPin } from "@/lib/client-crypto";
 
 export default function ConnectPage() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function ConnectPage() {
   });
 
   const [mounted, setMounted] = React.useState(false);
-  const [tokenModal, setTokenModal] = React.useState<{ isOpen: boolean; mode: 'import' | 'export'; token: string; pin: string; loading: boolean }>({ isOpen: false, mode: 'import', token: '', pin: '', loading: false });
+  const [tokenModal, setTokenModal] = React.useState<{ isOpen: boolean; token: string; pin: string; loading: boolean }>({ isOpen: false, token: '', pin: '', loading: false });
 
   const portValue = useWatch({ control, name: "port" });
   const encryptionValue = useWatch({ control, name: "encryption" });
@@ -78,29 +78,8 @@ export default function ConnectPage() {
     connectMutation.mutate(data);
   };
 
-  const handleOpenExport = async () => {
-    setTokenModal({ isOpen: true, mode: 'export', token: '', pin: '', loading: false });
-  };
-
-  const handleGenerateExport = async () => {
-    if (!tokenModal.pin) {
-      toast.error("Please enter a PIN to secure the token.");
-      return;
-    }
-    setTokenModal(prev => ({ ...prev, loading: true }));
-    try {
-      const data = getValues();
-      const token = await encryptWithPin(data, tokenModal.pin);
-      setTokenModal(prev => ({ ...prev, token, loading: false }));
-      toast.success("Secure token generated!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to generate token.");
-      setTokenModal(prev => ({ ...prev, loading: false }));
-    }
-  };
-
   const handleOpenImport = () => {
-    setTokenModal({ isOpen: true, mode: 'import', token: '', pin: '', loading: false });
+    setTokenModal({ isOpen: true, token: '', pin: '', loading: false });
   };
 
   const handleProcessImport = async () => {
@@ -124,7 +103,7 @@ export default function ConnectPage() {
         setValue(key as any, value);
       });
       toast.success("Settings and data imported successfully!");
-      setTokenModal({ isOpen: false, mode: 'import', token: '', pin: '', loading: false });
+      setTokenModal({ isOpen: false, token: '', pin: '', loading: false });
     } catch (err: any) {
       toast.error("Invalid token or incorrect PIN.");
       setTokenModal(prev => ({ ...prev, loading: false }));
@@ -160,67 +139,42 @@ export default function ConnectPage() {
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-lg flex items-center gap-2">
                 <Key className="h-5 w-5 text-accent" />
-                {tokenModal.mode === 'import' ? 'Import Settings' : 'Export Settings'}
+                Import Settings
               </h3>
               <button onClick={() => setTokenModal(prev => ({ ...prev, isOpen: false }))} className="text-muted hover:text-fg"><X className="h-5 w-5" /></button>
             </div>
             
             <div className="space-y-4 flex-1 overflow-y-auto">
               <p className="text-sm text-muted">
-                {tokenModal.mode === 'import' 
-                  ? "Paste your secure token and enter the PIN used to encrypt it." 
-                  : "Enter a PIN to encrypt your current form data. You'll need this PIN to import it elsewhere."}
+                Paste your secure token and enter the PIN used to encrypt it.
               </p>
               
-              {tokenModal.mode === 'import' && (
-                <div className="space-y-2">
-                  <Label>Secure Token</Label>
-                  <textarea 
-                    placeholder="smtpanel://..." 
-                    className="flex min-h-[120px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent font-mono text-xs break-all"
-                    value={tokenModal.token}
-                    onChange={(e) => setTokenModal(prev => ({ ...prev, token: e.target.value }))}
-                  />
-                </div>
-              )}
-              
-              {tokenModal.mode === 'export' && tokenModal.token && (
-                <div className="space-y-2">
-                  <Label>Your Encrypted Token</Label>
-                  <textarea 
-                    readOnly
-                    className="flex min-h-[120px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm font-mono text-xs break-all"
-                    value={tokenModal.token}
-                  />
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label>Secure Token</Label>
+                <textarea 
+                  placeholder="smtpanel://..." 
+                  className="flex min-h-[120px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent font-mono text-xs break-all"
+                  value={tokenModal.token}
+                  onChange={(e) => setTokenModal(prev => ({ ...prev, token: e.target.value }))}
+                />
+              </div>
 
-              {!(tokenModal.mode === 'export' && tokenModal.token) && (
-                <div className="space-y-2">
-                  <Label>Encryption PIN</Label>
-                  <Input 
-                    type="password" 
-                    placeholder="e.g. 12345" 
-                    value={tokenModal.pin}
-                    onChange={(e) => setTokenModal(prev => ({ ...prev, pin: e.target.value }))}
-                  />
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label>Encryption PIN</Label>
+                <Input 
+                  type="password" 
+                  placeholder="e.g. 12345" 
+                  value={tokenModal.pin}
+                  onChange={(e) => setTokenModal(prev => ({ ...prev, pin: e.target.value }))}
+                />
+              </div>
             </div>
 
             <div className="mt-4 pt-4 border-t border-border-soft flex gap-2">
               <Button variant="secondary" className="flex-1" onClick={() => setTokenModal(prev => ({ ...prev, isOpen: false }))}>Cancel</Button>
-              {tokenModal.mode === 'import' ? (
-                <Button className="flex-1" onClick={handleProcessImport} disabled={tokenModal.loading}>
-                  {tokenModal.loading ? "Decrypting..." : "Import"}
-                </Button>
-              ) : !tokenModal.token ? (
-                <Button className="flex-1" onClick={handleGenerateExport} disabled={tokenModal.loading}>
-                  {tokenModal.loading ? "Encrypting..." : "Generate Token"}
-                </Button>
-              ) : (
-                <Button className="flex-1" onClick={copyToken}>Copy Token</Button>
-              )}
+              <Button className="flex-1" onClick={handleProcessImport} disabled={tokenModal.loading}>
+                {tokenModal.loading ? "Decrypting..." : "Import"}
+              </Button>
             </div>
           </div>
         )}
@@ -295,14 +249,6 @@ export default function ConnectPage() {
                 className="text-xs text-muted hover:text-fg font-medium transition-colors flex items-center gap-1 px-2 py-1"
               >
                 <Upload className="h-3 w-3" /> Import Settings
-              </button>
-              <span className="text-muted/30">|</span>
-              <button 
-                type="button" 
-                onClick={handleOpenExport}
-                className="text-xs text-muted hover:text-fg font-medium transition-colors flex items-center gap-1 px-2 py-1"
-              >
-                <Key className="h-3 w-3" /> Export Settings
               </button>
             </div>
           </form>
