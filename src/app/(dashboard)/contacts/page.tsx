@@ -19,9 +19,13 @@ export default function ContactsPage() {
   const [tags, setTags] = React.useState<string[]>([]);
   const [openMenuId, setOpenMenuId] = React.useState<string | null>(null);
 
-  // Close menu when clicking outside
   React.useEffect(() => {
-    const handleClickOutside = () => setOpenMenuId(null);
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.menu-trigger') && !target.closest('.menu-dropdown')) {
+        setOpenMenuId(null);
+      }
+    };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
@@ -232,16 +236,17 @@ export default function ContactsPage() {
                     <h3 className="font-semibold text-fg text-base truncate max-w-[180px]" title={contact.name}>{contact.name}</h3>
                     <p className="text-sm text-muted mt-1 truncate max-w-[180px]" title={contact.email}>{contact.email}</p>
                   </div>
-                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                  <div className="relative">
                     <button 
+                      type="button"
                       onClick={() => setOpenMenuId(openMenuId === contact.id ? null : contact.id)}
-                      className="text-muted hover:text-fg p-1 rounded-md transition-colors focus:outline-none"
+                      className="menu-trigger text-muted hover:text-fg p-1 rounded-md transition-colors focus:outline-none"
                     >
-                      <MoreHorizontal className="h-4 w-4" />
+                      <MoreHorizontal className="h-4 w-4 pointer-events-none" />
                     </button>
                     
                     {openMenuId === contact.id && (
-                      <div className="absolute right-0 top-full mt-1 w-36 bg-surface border border-border rounded-md shadow-lg z-50 py-1 animate-fade-in">
+                      <div className="menu-dropdown absolute right-0 top-full mt-1 w-36 bg-surface border border-border rounded-md shadow-lg z-50 py-1 animate-fade-in">
                         <button 
                           onClick={() => { handleEdit(contact); setOpenMenuId(null); }}
                           className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Code, Key, Upload, X } from "lucide-react";
+import { Mail, Key, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -121,16 +121,6 @@ export default function ConnectPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 relative">
-      <a 
-        href="https://github.com/afrizalyogi/smtpanel" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="absolute top-6 right-6 text-muted hover:text-fg transition-colors flex items-center gap-2 text-sm font-medium bg-surface-warm px-3 py-2 rounded-md border border-border-soft"
-      >
-        <Code className="h-5 w-5" />
-        <span className="hidden sm:inline">View Source</span>
-      </a>
-
       <Card className="w-full max-w-md relative overflow-hidden">
         
         {/* TOKEN MODAL OVERLAY */}
@@ -248,8 +238,18 @@ export default function ConnectPage() {
                 onClick={handleOpenImport}
                 className="text-xs text-muted hover:text-fg font-medium transition-colors flex items-center gap-1 px-2 py-1"
               >
-                <Upload className="h-3 w-3" /> Import Settings
+                <Upload className="h-3.5 w-3.5" /> Import Settings
               </button>
+              <span className="text-muted/30">|</span>
+              <a 
+                href="https://github.com/afrizalyogi/smtpanel"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-muted hover:text-fg font-medium transition-colors flex items-center gap-1 px-2 py-1"
+              >
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 9 18.13V22"></path></svg>
+                GitHub
+              </a>
             </div>
           </form>
         </CardContent>
