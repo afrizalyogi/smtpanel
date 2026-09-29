@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Send, History, Settings, Menu, Mail, FileText, LogOut, Users, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { LayoutDashboard, Send, History, Settings, Menu, Mail, FileText, LogOut, Users, PanelLeftClose, PanelLeftOpen, AlertTriangle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store";
 import { toast } from "sonner";
@@ -23,7 +23,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
-  const { identity, clearData } = useAppStore();
+  const { identity, clearData, hasSeenWarning, dismissWarning } = useAppStore();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close mobile menu on route change
   React.useEffect(() => {
@@ -168,7 +173,20 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </button>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 flex flex-col relative">
+          {mounted && !hasSeenWarning && (
+            <div className="bg-warn/10 border border-warn/20 rounded-md p-4 flex items-start justify-between gap-3 mb-6 shrink-0 animate-slide-down shadow-sm">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-warn shrink-0 mt-0.5" />
+                <div className="text-sm text-fg">
+                  <span className="font-semibold text-warn">Local Storage:</span> Your data is saved only in this browser. Please export regularly. Clearing browser data or disconnecting will erase it.
+                </div>
+              </div>
+              <button onClick={dismissWarning} className="text-muted hover:text-fg shrink-0 p-1 rounded-md transition-colors hover:bg-warn/10">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
           {children}
         </main>
       </div>

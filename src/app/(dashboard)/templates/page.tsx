@@ -192,12 +192,7 @@ export default function TemplatesPage() {
         </div>
       </div>
 
-      <div className="bg-warn/10 border border-warn/20 rounded-md p-4 flex items-start gap-3">
-        <AlertTriangle className="h-5 w-5 text-warn shrink-0 mt-0.5" />
-        <div className="text-sm text-fg">
-          <span className="font-semibold text-warn">Local Storage:</span> Your data is saved only in this browser. Please export regularly. Clearing browser data or disconnecting will erase it.
-        </div>
-      </div>
+      
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {templates.length === 0 ? (

@@ -30,6 +30,8 @@ export type ContactRecord = {
 interface AppState {
   isConnected: boolean;
   setConnected: (connected: boolean) => void;
+  hasSeenWarning: boolean;
+  dismissWarning: () => void;
   emails: EmailRecord[];
   addEmail: (email: EmailRecord) => void;
   importHistory: (emails: EmailRecord[]) => void;
@@ -61,7 +63,9 @@ export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       isConnected: false,
+      hasSeenWarning: false,
       setConnected: (connected) => set({ isConnected: connected }),
+      dismissWarning: () => set({ hasSeenWarning: true }),
       emails: [],
       addEmail: (email) =>
         set((state) => {
@@ -128,6 +132,7 @@ export const useAppStore = create<AppState>()(
       clearData: () =>
         set({
           isConnected: false,
+          hasSeenWarning: false,
           emails: [],
           templates: [],
           contacts: [],
