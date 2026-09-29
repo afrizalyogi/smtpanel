@@ -147,11 +147,8 @@ export default function TemplatesPage() {
         </div>
       )}
 
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-1">Templates</h1>
-          <p className="text-muted">Manage your saved email templates.</p>
-        </div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl font-bold tracking-tight">Templates</h1>
         <div className="flex gap-3">
           <input 
             type="file" 
