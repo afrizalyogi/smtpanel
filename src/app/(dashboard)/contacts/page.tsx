@@ -207,61 +207,69 @@ export default function ContactsPage() {
       </div>
 
       {isAdding && (
-      <Card className={editingId ? "border-accent/50 shadow-md transition-all" : ""}>
-        <CardHeader>
-          <CardTitle>
-            {editingId ? <span className="text-accent">Edit Contact</span> : <span>Add New Contact</span>}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Name</Label>
-                <Input required placeholder="John Doe" {...register("name")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input required type="email" placeholder="john@example.com" {...register("email")} />
-              </div>
+        <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={cancelEdit}>
+          <div className="bg-surface border border-border w-full max-w-2xl rounded-lg shadow-xl flex flex-col max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-4 border-b border-border-soft">
+              <h3 className="font-semibold text-lg flex items-center gap-2">
+                {editingId ? (
+                  <><Edit className="h-5 w-5 text-accent" /> Edit Contact</>
+                ) : (
+                  <><Users className="h-5 w-5 text-accent" /> Add New Contact</>
+                )}
+              </h3>
+              <button type="button" onClick={cancelEdit} className="text-muted hover:text-fg"><X className="h-5 w-5" /></button>
             </div>
 
-            <div className="space-y-2">
-              <Label>Tags (Optional)</Label>
-              <div className="flex gap-2">
-                <Input 
-                  placeholder="e.g. Work, VIP" 
-                  value={tagsInput} 
-                  onChange={e => setTagsInput(e.target.value)}
-                  onKeyDown={handleTagsKeyDown}
-                />
-                <Button type="button" variant="secondary" onClick={addTag}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {tags.map(t => (
-                    <span key={t} className="inline-flex items-center gap-1 bg-surface-warm border border-border-soft px-2.5 py-1 rounded-full text-xs font-medium text-fg-2">
-                      {t}
-                      <button type="button" onClick={() => removeTag(t)} className="text-muted hover:text-danger rounded-full focus:outline-none"><X className="h-3 w-3" /></button>
-                    </span>
-                  ))}
+            <div className="p-4 space-y-4 flex-1 overflow-y-auto">
+              <form id="contact-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Name</Label>
+                    <Input required placeholder="John Doe" {...register("name")} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input required type="email" placeholder="john@example.com" {...register("email")} />
+                  </div>
                 </div>
-              )}
+
+                <div className="space-y-2">
+                  <Label>Tags (Optional)</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      placeholder="e.g. Work, VIP" 
+                      value={tagsInput} 
+                      onChange={e => setTagsInput(e.target.value)}
+                      onKeyDown={handleTagsKeyDown}
+                    />
+                    <Button type="button" variant="secondary" onClick={addTag}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {tags.map(t => (
+                        <span key={t} className="inline-flex items-center gap-1 bg-surface-warm border border-border-soft px-2.5 py-1 rounded-full text-xs font-medium text-fg-2">
+                          {t}
+                          <button type="button" onClick={() => removeTag(t)} className="text-muted hover:text-danger rounded-full focus:outline-none"><X className="h-3 w-3" /></button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </form>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button type="submit" className="w-full sm:w-auto">
-                {editingId ? "Update Contact" : "Save Contact"}
-              </Button>
-              <Button type="button" variant="ghost" onClick={cancelEdit} className="w-full sm:w-auto">
+            <div className="p-4 border-t border-border-soft flex flex-col sm:flex-row justify-end gap-3 bg-surface-warm/30">
+              <Button type="button" variant="secondary" onClick={cancelEdit} className="w-full sm:w-auto">
                 Cancel
               </Button>
+              <Button type="submit" form="contact-form" className="w-full sm:w-auto">
+                {editingId ? "Update Contact" : "Save Contact"}
+              </Button>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+        </div>
       )}
 
       {/* Search and Sort Controls */}
