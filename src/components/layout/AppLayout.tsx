@@ -1,0 +1,114 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, Send, History, Settings, Menu, Mail, User } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAppStore } from "@/store";
+
+const NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/send", label: "Send Email", icon: Send },
+  { href: "/sent", label: "Sent History", icon: History },
+  { href: "/settings", label: "Settings", icon: Settings },
+];
+
+export function AppLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const { identity } = useAppStore();
+
+  // Close mobile menu on route change
+  React.useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  return (
+    <div className="flex min-h-screen flex-col md:flex-row bg-bg">
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border bg-surface transition-transform duration-300 md:static md:translate-x-0",
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex items-center gap-2 border-b border-border-soft p-5">
+          <Mail className="h-6 w-6 text-fg" />
+          <span className="font-semibold tracking-wide text-fg">SMTPanel</span>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto py-4 space-y-1">
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard");
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-md mx-3 px-3 py-2 text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-white/10 text-fg"
+                    : "text-muted hover:bg-white/5 hover:text-fg"
+                )}
+              >
+                <item.icon className={cn("h-4 w-4", isActive ? "text-fg" : "text-muted")} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="mt-auto px-3 pb-3">
+          {/* User Profile Block */}
+          <div className="mb-3 flex items-center gap-3 rounded-md hover:bg-white/5 transition-colors p-3 cursor-pointer">
+            <div className="flex flex-col overflow-hidden">
+              <span className="truncate text-sm font-medium text-fg">
+                {identity.fromName || "No Name"}
+              </span>
+              <span className="truncate text-xs text-muted">
+                {identity.fromEmail || "No Email"}
+              </span>
+            </div>
+          </div>
+
+          <div className="border-t border-border-soft pt-3">
+            <div className="flex items-center gap-2 rounded-md bg-white/5 px-3 py-2 text-sm">
+              <div className="h-2 w-2 rounded-full bg-success" />
+              <span className="font-mono text-fg text-xs">SMTP Connected</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Mobile Topbar */}
+        <header className="flex items-center justify-between border-b border-border bg-surface p-3 md:hidden">
+          <div className="flex items-center gap-2 font-semibold">
+            <Mail className="h-5 w-5 text-fg" />
+            SMTPanel
+          </div>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="rounded p-1 hover:bg-surface-warm"
+          >
+            <Menu className="h-6 w-6 text-fg" />
+          </button>
+        </header>
+
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}

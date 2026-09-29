@@ -1,69 +1,153 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import { useAppStore } from "@/store";
+import { useMutation } from "@tanstack/react-query";
+import { useForm, useWatch } from "react-hook-form";
+
+export default function ConnectPage() {
+  const router = useRouter();
+  const { isConnected, setConnected, setIdentity } = useAppStore();
+
+  const { register, handleSubmit, control, setValue } = useForm({
+    defaultValues: {
+      host: "smtp.gmail.com",
+      port: "587",
+      encryption: "STARTTLS",
+      username: "",
+      password: "",
+      fromName: "",
+      fromEmail: "",
+    }
+  });
+
+  const [mounted, setMounted] = React.useState(false);
+
+  const portValue = useWatch({ control, name: "port" });
+  const encryptionValue = useWatch({ control, name: "encryption" });
+
+  React.useEffect(() => {
+    if (portValue === "465" && encryptionValue !== "TLS") {
+      setValue("encryption", "TLS");
+    } else if (portValue === "587" && encryptionValue !== "STARTTLS") {
+      setValue("encryption", "STARTTLS");
+    }
+  }, [portValue, setValue, encryptionValue]);
+
+  React.useEffect(() => {
+    setMounted(true);
+    if (isConnected) {
+      router.push("/dashboard");
+    }
+  }, [isConnected, router]);
+
+  const connectMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await fetch('/api/smtp/connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed to connect');
+      return json;
+    },
+    onSuccess: (_, variables) => {
+      if (variables.fromName || variables.fromEmail) {
+        setIdentity(variables.fromName || "", variables.fromEmail || "");
+      }
+      toast.success("SMTP connection verified and secured.");
+      setConnected(true);
+      router.push("/dashboard");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    }
+  });
+
+  const onSubmit = (data: any) => {
+    connectMutation.mutate(data);
+  };
+
+  if (!mounted || isConnected) return null; // prevent flicker and hydration mismatch
+
+  const isPending = connectMutation.isPending;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
+            <Mail className="h-6 w-6 text-accent" />
+          </div>
+          <CardTitle className="text-2xl">SMTP Connect</CardTitle>
+          <p className="text-muted text-sm mt-2">
+            Connect your SMTP server and manage email sending from a simple, secure dashboard.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="host">SMTP Host</Label>
+                <Input id="host" placeholder="smtp.example.com" required disabled={isPending} {...register("host")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="port">Port</Label>
+                <Input id="port" type="number" placeholder="587" required disabled={isPending} {...register("port")} />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="encryption">Encryption</Label>
+              <select
+                id="encryption"
+                disabled={isPending}
+                className="flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                {...register("encryption")}
+              >
+                <option value="STARTTLS">STARTTLS</option>
+                <option value="TLS">TLS/SSL</option>
+                <option value="None">None</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input id="username" placeholder="user@example.com" required disabled={isPending} {...register("username")} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" placeholder="••••••••••••" required disabled={isPending} {...register("password")} />
+            </div>
+
+            <div className="border-t border-border-soft my-6 pt-4 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fromName">From Name</Label>
+                  <Input id="fromName" placeholder="My Company" disabled={isPending} {...register("fromName")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fromEmail">From Email</Label>
+                  <Input id="fromEmail" type="email" placeholder="user@example.com" disabled={isPending} {...register("fromEmail")} />
+                </div>
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Testing Connection..." : "Test Connection & Connect"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
