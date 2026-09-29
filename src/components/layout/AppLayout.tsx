@@ -42,7 +42,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row bg-bg">
+    <div className="flex h-screen flex-col md:flex-row bg-bg overflow-hidden">
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div 

@@ -193,7 +193,7 @@ export default function SendPage() {
                       key={tpl.id} 
                       type="button" 
                       onClick={() => loadTemplate(tpl.id)} 
-                      className="w-full text-left p-3 rounded-md border border-border-soft bg-surface hover:bg-accent/10 hover:border-accent/30 hover:shadow-sm transition-all block"
+                      className="w-full text-left p-3 rounded-md border border-border-soft bg-surface hover:bg-surface-warm hover:border-border hover:shadow-sm transition-all block"
                     >
                       <div className="text-sm font-semibold text-fg truncate">
                         {tpl.name}
@@ -245,7 +245,7 @@ export default function SendPage() {
                       setValue("to", c.email, { shouldValidate: true });
                       setShowContacts(false);
                     }}
-                    className="w-full text-left p-3 border-b border-border-soft bg-surface hover:bg-accent/10 transition-colors flex flex-col last:border-b-0"
+                    className="w-full text-left p-3 border-b border-border-soft bg-surface hover:bg-surface-warm transition-colors flex flex-col last:border-b-0"
                   >
                     <span className="text-sm font-semibold text-fg">{c.name}</span>
                     <span className="text-xs text-muted">{c.email}</span>

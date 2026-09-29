@@ -5,7 +5,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAppStore, TemplateRecord } from "@/store";
 import { toast } from "sonner";
-import { Download, Upload, X, AlertTriangle, FileText, Edit, Save, MoreVertical } from "lucide-react";
+import { Download, Upload, X, AlertTriangle, FileText, Edit, Save, MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Editor } from "@/components/ui/editor";
 import { Input } from "@/components/ui/input";
@@ -184,7 +184,7 @@ export default function TemplatesPage() {
           </div>
         ) : (
           templates.map((tpl) => (
-            <Card key={tpl.id} className="mb-0 flex flex-col">
+            <Card key={tpl.id} className="mb-0 flex flex-col relative overflow-visible">
               <CardHeader className="pb-3 border-b border-border-soft flex-row justify-between items-start">
                 <div>
                   <CardTitle className="text-base truncate max-w-[180px]" title={tpl.name}>{tpl.name}</CardTitle>
@@ -193,13 +193,13 @@ export default function TemplatesPage() {
                 <div className="relative" onClick={(e) => e.stopPropagation()}>
                   <button 
                     onClick={() => setOpenMenuId(openMenuId === tpl.id ? null : tpl.id)}
-                    className="text-muted hover:text-fg p-1.5 rounded-md hover:bg-surface-warm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    className="text-muted hover:text-fg p-1 rounded-md transition-colors focus:outline-none"
                   >
-                    <MoreVertical className="h-4 w-4" />
+                    <MoreHorizontal className="h-4 w-4" />
                   </button>
                   
                   {openMenuId === tpl.id && (
-                    <div className="absolute right-0 top-full mt-1 w-36 bg-surface border border-border rounded-md shadow-lg z-10 overflow-hidden py-1 animate-fade-in">
+                    <div className="absolute right-0 top-full mt-1 w-36 bg-surface border border-border rounded-md shadow-lg z-50 py-1 animate-fade-in">
                       <button 
                         onClick={() => { handleEditClick(tpl); setOpenMenuId(null); }}
                         className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"

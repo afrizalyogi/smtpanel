@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/store";
 import { toast } from "sonner";
-import { Users, Upload, Download, X, Edit, Plus, MoreVertical } from "lucide-react";
+import { Users, Upload, Download, X, Edit, Plus, MoreHorizontal } from "lucide-react";
 
 export default function ContactsPage() {
   const { contacts, saveContact, updateContact, deleteContact, importContacts } = useAppStore();
@@ -225,7 +225,7 @@ export default function ContactsPage() {
           </div>
         ) : (
           contacts.map((contact) => (
-            <Card key={contact.id} className="mb-0 flex flex-col relative group">
+            <Card key={contact.id} className="mb-0 flex flex-col relative group overflow-visible">
               <CardContent className="p-5 flex-1 flex flex-col justify-between">
                 <div className="flex justify-between items-start">
                   <div>
@@ -235,13 +235,13 @@ export default function ContactsPage() {
                   <div className="relative" onClick={(e) => e.stopPropagation()}>
                     <button 
                       onClick={() => setOpenMenuId(openMenuId === contact.id ? null : contact.id)}
-                      className="text-muted hover:text-fg p-1.5 rounded-md hover:bg-surface-warm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
+                      className="text-muted hover:text-fg p-1 rounded-md transition-colors focus:outline-none"
                     >
-                      <MoreVertical className="h-4 w-4" />
+                      <MoreHorizontal className="h-4 w-4" />
                     </button>
                     
                     {openMenuId === contact.id && (
-                      <div className="absolute right-0 top-full mt-1 w-36 bg-surface border border-border rounded-md shadow-lg z-10 overflow-hidden py-1 animate-fade-in">
+                      <div className="absolute right-0 top-full mt-1 w-36 bg-surface border border-border rounded-md shadow-lg z-50 py-1 animate-fade-in">
                         <button 
                           onClick={() => { handleEdit(contact); setOpenMenuId(null); }}
                           className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"
