@@ -6,9 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/store";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const { stats, emails } = useAppStore();
+  const router = useRouter();
   const recentEmails = emails.slice(0, 3);
 
   return (
@@ -55,6 +57,7 @@ export default function DashboardPage() {
                 <TableHead>Subject</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -69,6 +72,11 @@ export default function DashboardPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted">{email.date}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => router.push(`/sent/${email.id}`)}>
+                        Detail
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
