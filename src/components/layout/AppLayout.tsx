@@ -57,7 +57,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-surface transition-all duration-300 md:static md:translate-x-0",
-          sidebarCollapsed ? "w-[72px] cursor-pointer group" : "w-[260px]",
+          sidebarCollapsed ? "w-[72px]" : "w-[260px]",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
         onClick={(e) => {
