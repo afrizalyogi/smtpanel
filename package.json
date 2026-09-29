@@ -1,6 +1,8 @@
 {
   "name": "smtpanel",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Privacy-First Stateless SMTP Web Client",
+  "author": "Afrizal Yogi",
   "private": true,
   "scripts": {
     "dev": "next dev",
