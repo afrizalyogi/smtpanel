@@ -22,7 +22,7 @@ type FormData = {
 };
 
 export default function SendPage() {
-  const { identity, addEmail, templates, saveTemplate, deleteTemplate, contacts } = useAppStore();
+  const { identity, addEmail, templates, saveTemplate, contacts } = useAppStore();
   const [showCcBcc, setShowCcBcc] = React.useState(false);
   const [showMoreOptions, setShowMoreOptions] = React.useState(false);
   const [showTemplates, setShowTemplates] = React.useState(false);
@@ -171,24 +171,29 @@ export default function SendPage() {
             Templates ({templates.length})
           </Button>
           {showTemplates && (
-            <div className="absolute right-0 top-full mt-2 w-64 bg-surface border border-border rounded-md shadow-lg z-50 overflow-hidden">
-              <div className="p-2 border-b border-border-soft flex justify-between items-center bg-surface-warm/50">
-                <span className="text-sm font-medium text-muted">Your Templates</span>
+            <div className="absolute right-0 top-full mt-2 w-80 bg-surface border border-border rounded-md shadow-lg z-50 overflow-hidden">
+              <div className="p-3 border-b border-border-soft flex justify-between items-center bg-surface-warm/50">
+                <span className="text-sm font-medium text-fg">Select Template</span>
                 <button type="button" onClick={() => setShowTemplates(false)} className="text-muted hover:text-fg"><X className="h-4 w-4" /></button>
               </div>
-              <div className="max-h-64 overflow-y-auto">
+              <div className="max-h-[320px] overflow-y-auto p-2 space-y-2 bg-bg/50">
                 {templates.length === 0 ? (
                   <div className="p-4 text-center text-muted text-sm">No templates saved.</div>
                 ) : (
                   templates.map((tpl) => (
-                    <div key={tpl.id} className="flex justify-between items-center p-2 border-b border-border-soft hover:bg-surface-warm transition-colors group">
-                      <button type="button" onClick={() => loadTemplate(tpl.id)} className="text-sm font-medium text-fg text-left truncate flex-1 hover:text-accent">
+                    <button 
+                      key={tpl.id} 
+                      type="button" 
+                      onClick={() => loadTemplate(tpl.id)} 
+                      className="w-full text-left p-3 rounded-md border border-border-soft bg-surface hover:bg-surface-warm hover:border-accent/40 hover:shadow-sm transition-all group block"
+                    >
+                      <div className="text-sm font-semibold text-fg group-hover:text-accent transition-colors truncate">
                         {tpl.name}
-                      </button>
-                      <button type="button" onClick={() => deleteTemplate(tpl.id)} className="text-muted hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity ml-2">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
+                      </div>
+                      <div className="text-xs text-muted truncate mt-1">
+                        {tpl.subject}
+                      </div>
+                    </button>
                   ))
                 )}
               </div>
@@ -323,8 +328,7 @@ export default function SendPage() {
 
         {/* Format Toggle & Body Area */}
         <div className="flex flex-col flex-1">
-          <div className="flex px-4 py-2 bg-surface-warm/30 border-b border-border-soft gap-4 text-sm font-medium items-center justify-between">
-            <span className="text-muted">Visual Editor</span>
+          <div className="flex px-4 py-2 bg-surface-warm/30 border-b border-border-soft gap-4 text-sm font-medium items-center justify-end">
             <button type="button" onClick={handleSaveTemplate} className="text-muted hover:text-fg flex items-center gap-1 transition-colors">
               <Save className="h-4 w-4" /> Save Template
             </button>
