@@ -207,7 +207,7 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="text-danger">Security & Data</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <p className="text-muted text-sm">
                 Disconnecting will remove your securely stored SMTP credentials from the server's session cookie and <strong>clear your local browser history and templates</strong>.
               </p>

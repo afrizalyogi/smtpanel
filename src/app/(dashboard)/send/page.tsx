@@ -280,35 +280,39 @@ export default function SendPage() {
         {/* Cc & Bcc Fields */}
         {showCcBcc && (
           <>
-            <div className="relative flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
+            <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
               <span className="text-muted text-sm w-20 font-medium">Cc</span>
-              <input 
-                type="text" 
-                placeholder="cc@example.com"
-                className="flex-1 bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
-                disabled={sendMutation.isPending}
-                autoComplete="off"
-                onFocus={() => setActiveContactField("cc")}
-                {...register("cc", {
-                  onBlur: () => setActiveContactField(null),
-                })} 
-              />
-              {renderContactDropdown("cc")}
+              <div className="flex-1 relative">
+                <input 
+                  type="text" 
+                  placeholder="cc@example.com"
+                  className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
+                  disabled={sendMutation.isPending}
+                  autoComplete="off"
+                  onFocus={() => setActiveContactField("cc")}
+                  {...register("cc", {
+                    onBlur: () => setActiveContactField(null),
+                  })} 
+                />
+                {renderContactDropdown("cc")}
+              </div>
             </div>
-            <div className="relative flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
+            <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
               <span className="text-muted text-sm w-20 font-medium">Bcc</span>
-              <input 
-                type="text" 
-                placeholder="bcc@example.com"
-                className="flex-1 bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
-                disabled={sendMutation.isPending}
-                autoComplete="off"
-                onFocus={() => setActiveContactField("bcc")}
-                {...register("bcc", {
-                  onBlur: () => setActiveContactField(null),
-                })} 
-              />
-              {renderContactDropdown("bcc")}
+              <div className="flex-1 relative">
+                <input 
+                  type="text" 
+                  placeholder="bcc@example.com"
+                  className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
+                  disabled={sendMutation.isPending}
+                  autoComplete="off"
+                  onFocus={() => setActiveContactField("bcc")}
+                  {...register("bcc", {
+                    onBlur: () => setActiveContactField(null),
+                  })} 
+                />
+                {renderContactDropdown("bcc")}
+              </div>
             </div>
           </>
         )}
@@ -340,18 +344,20 @@ export default function SendPage() {
           <>
             <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
               <span className="text-muted text-sm w-20 font-medium">Reply-To</span>
-              <input 
-                type="email" 
-                placeholder="reply@example.com"
-                className="flex-1 bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
-                disabled={sendMutation.isPending}
-                autoComplete="off"
-                onFocus={() => setActiveContactField("replyTo")}
-                {...register("replyTo", {
-                  onBlur: () => setActiveContactField(null),
-                })} 
-              />
-              {renderContactDropdown("replyTo")}
+              <div className="flex-1 relative">
+                <input 
+                  type="email" 
+                  placeholder="reply@example.com"
+                  className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
+                  disabled={sendMutation.isPending}
+                  autoComplete="off"
+                  onFocus={() => setActiveContactField("replyTo")}
+                  {...register("replyTo", {
+                    onBlur: () => setActiveContactField(null),
+                  })} 
+                />
+                {renderContactDropdown("replyTo")}
+              </div>
             </div>
             <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
               <span className="text-muted text-sm w-20 font-medium">Priority</span>

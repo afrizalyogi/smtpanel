@@ -1,6 +1,4 @@
-# ⚡ SMTPanel
-
-> **Your SMTP. One clean interface. Zero data stored.**
+# SMTPanel
 
 SMTPanel is a privacy-first, lightweight web client that allows you to connect to your own SMTP server and manage email sending from a beautiful, modern dashboard. 
 
