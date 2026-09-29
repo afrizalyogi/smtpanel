@@ -133,8 +133,8 @@ export default function TemplatesPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-5xl mx-auto relative">
       {(editingTemplate || isAddingNew) && (
-        <div className="fixed inset-0 bg-bg/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface border border-border w-full max-w-3xl rounded-lg shadow-xl flex flex-col max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setEditingTemplate(null); setIsAddingNew(false); }}>
+          <div className="bg-surface border border-border w-full max-w-3xl rounded-lg shadow-xl flex flex-col max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center p-4 border-b border-border-soft">
               <h3 className="font-semibold text-lg flex items-center gap-2"><Edit className="h-5 w-5 text-accent" /> {isAddingNew ? "Add New Template" : "Edit Template"}</h3>
               <button onClick={() => { setEditingTemplate(null); setIsAddingNew(false); }} className="text-muted hover:text-fg"><X className="h-5 w-5" /></button>
