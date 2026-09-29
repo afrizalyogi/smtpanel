@@ -24,6 +24,7 @@ export type ContactRecord = {
   id: string;
   name: string;
   email: string;
+  tags?: string[];
 };
 
 interface AppState {
@@ -34,10 +35,12 @@ interface AppState {
   importHistory: (emails: EmailRecord[]) => void;
   templates: TemplateRecord[];
   saveTemplate: (template: TemplateRecord) => void;
+  updateTemplate: (id: string, template: Partial<TemplateRecord>) => void;
   deleteTemplate: (id: string) => void;
   importTemplates: (templates: TemplateRecord[]) => void;
   contacts: ContactRecord[];
   saveContact: (contact: ContactRecord) => void;
+  updateContact: (id: string, contact: Partial<ContactRecord>) => void;
   deleteContact: (id: string) => void;
   importContacts: (contacts: ContactRecord[]) => void;
   stats: {
@@ -96,6 +99,9 @@ export const useAppStore = create<AppState>()(
       }),
       templates: [],
       saveTemplate: (template) => set((state) => ({ templates: [...state.templates, template] })),
+      updateTemplate: (id, templateUpdate) => set((state) => ({
+        templates: state.templates.map(t => t.id === id ? { ...t, ...templateUpdate } : t)
+      })),
       deleteTemplate: (id) => set((state) => ({ templates: state.templates.filter(t => t.id !== id) })),
       importTemplates: (newTemplates) => set((state) => {
         // Prevent duplicates by ID
@@ -105,6 +111,9 @@ export const useAppStore = create<AppState>()(
       }),
       contacts: [],
       saveContact: (contact) => set((state) => ({ contacts: [...state.contacts, contact] })),
+      updateContact: (id, contactUpdate) => set((state) => ({
+        contacts: state.contacts.map(c => c.id === id ? { ...c, ...contactUpdate } : c)
+      })),
       deleteContact: (id) => set((state) => ({ contacts: state.contacts.filter(c => c.id !== id) })),
       importContacts: (newContacts) => set((state) => {
         const existingIds = new Set(state.contacts.map(c => c.id));

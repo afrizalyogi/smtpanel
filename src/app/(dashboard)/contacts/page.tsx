@@ -8,24 +8,75 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/store";
 import { toast } from "sonner";
-import { Users, Upload, Download, X } from "lucide-react";
+import { Users, Upload, Download, X, Edit, Plus } from "lucide-react";
 
 export default function ContactsPage() {
-  const { contacts, saveContact, deleteContact, importContacts } = useAppStore();
+  const { contacts, saveContact, updateContact, deleteContact, importContacts } = useAppStore();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, reset } = useForm({
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [tagsInput, setTagsInput] = React.useState<string>("");
+  const [tags, setTags] = React.useState<string[]>([]);
+
+  const { register, handleSubmit, reset, setValue } = useForm({
     defaultValues: { name: "", email: "" },
   });
 
   const onSubmit = (data: any) => {
-    saveContact({
-      id: 'contact_' + Date.now(),
-      name: data.name,
-      email: data.email,
-    });
-    toast.success("Contact saved successfully!");
+    if (editingId) {
+      updateContact(editingId, {
+        name: data.name,
+        email: data.email,
+        tags
+      });
+      toast.success("Contact updated successfully!");
+      setEditingId(null);
+    } else {
+      saveContact({
+        id: 'contact_' + Date.now(),
+        name: data.name,
+        email: data.email,
+        tags
+      });
+      toast.success("Contact saved successfully!");
+    }
     reset();
+    setTags([]);
+    setTagsInput("");
+  };
+
+  const handleEdit = (contact: any) => {
+    setEditingId(contact.id);
+    setValue("name", contact.name);
+    setValue("email", contact.email);
+    setTags(contact.tags || []);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    reset();
+    setTags([]);
+    setTagsInput("");
+  };
+
+  const addTag = () => {
+    const t = tagsInput.trim();
+    if (t && !tags.includes(t)) {
+      setTags([...tags, t]);
+    }
+    setTagsInput("");
+  };
+
+  const handleTagsKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTag();
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter(t => t !== tagToRemove));
   };
 
   const handleExportSingle = (contact: any) => {
@@ -100,9 +151,16 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      <Card>
+      <Card className={editingId ? "border-accent/50 shadow-md transition-all" : ""}>
         <CardHeader>
-          <CardTitle>Add New Contact</CardTitle>
+          <CardTitle className="flex justify-between items-center">
+            {editingId ? <span className="text-accent">Edit Contact</span> : <span>Add New Contact</span>}
+            {editingId && (
+              <button onClick={cancelEdit} className="text-muted hover:text-fg text-sm flex items-center gap-1 font-normal">
+                <X className="h-4 w-4" /> Cancel
+              </button>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -116,7 +174,35 @@ export default function ContactsPage() {
                 <Input required type="email" placeholder="john@example.com" {...register("email")} />
               </div>
             </div>
-            <Button type="submit">Save Contact</Button>
+
+            <div className="space-y-2">
+              <Label>Tags (Optional)</Label>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="e.g. Work, VIP" 
+                  value={tagsInput} 
+                  onChange={e => setTagsInput(e.target.value)}
+                  onKeyDown={handleTagsKeyDown}
+                />
+                <Button type="button" variant="secondary" onClick={addTag}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {tags.map(t => (
+                    <span key={t} className="inline-flex items-center gap-1 bg-surface-warm border border-border-soft px-2.5 py-1 rounded-full text-xs font-medium text-fg-2">
+                      {t}
+                      <button type="button" onClick={() => removeTag(t)} className="text-muted hover:text-danger rounded-full focus:outline-none"><X className="h-3 w-3" /></button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Button type="submit">
+              {editingId ? "Update Contact" : "Save Contact"}
+            </Button>
           </form>
         </CardContent>
       </Card>
@@ -130,13 +216,20 @@ export default function ContactsPage() {
         ) : (
           contacts.map((contact) => (
             <Card key={contact.id} className="mb-0 flex flex-col relative group">
-              <CardContent className="p-5 flex-1">
+              <CardContent className="p-5 flex-1 flex flex-col justify-between">
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-semibold text-fg text-base truncate max-w-[180px]" title={contact.name}>{contact.name}</h3>
                     <p className="text-sm text-muted mt-1 truncate max-w-[180px]" title={contact.email}>{contact.email}</p>
                   </div>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={() => handleEdit(contact)}
+                      className="text-muted hover:text-accent p-1.5 rounded-md hover:bg-surface-warm transition-colors"
+                      title="Edit Contact"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
                     <button 
                       onClick={() => handleExportSingle(contact)}
                       className="text-muted hover:text-fg p-1.5 rounded-md hover:bg-surface-warm transition-colors"
@@ -153,6 +246,16 @@ export default function ContactsPage() {
                     </button>
                   </div>
                 </div>
+
+                {contact.tags && contact.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-4">
+                    {contact.tags.map(t => (
+                      <span key={t} className="bg-surface-warm text-muted px-2 py-0.5 rounded-full text-[10px] font-medium border border-border-soft">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))
