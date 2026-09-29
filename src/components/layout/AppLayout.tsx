@@ -57,9 +57,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-surface transition-all duration-300 md:static md:translate-x-0",
-          sidebarCollapsed ? "w-[72px]" : "w-[260px]",
+          sidebarCollapsed ? "w-[72px] cursor-pointer group" : "w-[260px]",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
+        onClick={(e) => {
+          if (!sidebarCollapsed) return;
+          const target = e.target as HTMLElement;
+          if (!target.closest('a') && !target.closest('button')) {
+            setSidebarCollapsed(false);
+          }
+        }}
       >
         <div className={cn("flex items-center border-b border-border-soft p-5", sidebarCollapsed ? "justify-center px-0" : "justify-between gap-2")}>
           <div className="flex items-center gap-2 overflow-hidden">
@@ -109,37 +116,31 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
         <div className="mt-auto px-3 pb-3">
           {/* User Profile Block & Menu */}
-          <div className="relative">
-            {showUserMenu && (
-              <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
-            )}
-            
-            {showUserMenu && (
-              <div className="absolute bottom-full left-0 mb-1 w-full bg-surface border border-border-soft rounded-md shadow-lg z-50 overflow-hidden animate-fade-in">
-                <button 
-                  onClick={handleDisconnect}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-danger hover:bg-danger/10 transition-colors text-left"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Disconnect SMTP
-                </button>
-              </div>
-            )}
-
-            <div 
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className={cn(
-                "flex items-center rounded-md transition-colors cursor-pointer",
-                sidebarCollapsed ? "justify-center p-2" : "justify-between p-3",
-                showUserMenu ? "bg-surface-warm/50" : "hover:bg-surface-warm/50"
+          {!sidebarCollapsed && (
+            <div className="relative">
+              {showUserMenu && (
+                <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
               )}
-              title={sidebarCollapsed ? identity.fromEmail || "No Email" : undefined}
-            >
-              {sidebarCollapsed ? (
-                <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-semibold shrink-0">
-                  {(identity.fromName || identity.fromEmail || "U").charAt(0).toUpperCase()}
+              
+              {showUserMenu && (
+                <div className="absolute bottom-full left-0 mb-1 w-full bg-surface border border-border-soft rounded-md shadow-lg z-50 overflow-hidden animate-fade-in">
+                  <button 
+                    onClick={handleDisconnect}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-danger hover:bg-danger/10 transition-colors text-left"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Disconnect SMTP
+                  </button>
                 </div>
-              ) : (
+              )}
+
+              <div 
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className={cn(
+                  "flex items-center justify-between rounded-md transition-colors p-3 cursor-pointer",
+                  showUserMenu ? "bg-surface-warm/50" : "hover:bg-surface-warm/50"
+                )}
+              >
                 <div className="flex flex-col overflow-hidden">
                   <span className="truncate text-sm font-medium text-fg">
                     {identity.fromName || "No Name"}
@@ -148,9 +149,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     {identity.fromEmail || "No Email"}
                   </span>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className={cn("mt-3 border-t border-border-soft pt-3 flex items-center", sidebarCollapsed ? "flex-col gap-3 px-0 justify-center" : "flex-row gap-2 px-2 justify-start")}>
             <a 
