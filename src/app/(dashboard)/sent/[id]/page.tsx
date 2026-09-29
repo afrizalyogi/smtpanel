@@ -127,8 +127,16 @@ export default function EmailDetailPage() {
           
           <hr className="border-border-soft my-6" />
           
-          <div className="bg-surface-warm p-4 rounded-md font-mono text-sm whitespace-pre-wrap">
-            {email.body || <span className="italic text-muted">Empty message body</span>}
+          <div className="bg-surface-warm p-4 rounded-md text-sm">
+            {email.body ? (
+              email.html ? (
+                <div className="[&>p]:mb-4 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&_a]:text-accent hover:[&_a]:underline" dangerouslySetInnerHTML={{ __html: email.body }} />
+              ) : (
+                <div className="font-mono whitespace-pre-wrap">{email.body}</div>
+              )
+            ) : (
+              <span className="italic text-muted font-mono">Empty message body</span>
+            )}
           </div>
         </CardContent>
       </Card>

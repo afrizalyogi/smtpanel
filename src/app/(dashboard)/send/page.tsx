@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Paperclip, X } from "lucide-react";
+import { Paperclip, X, Save, FolderOpen } from "lucide-react";
+import { Editor } from "@/components/ui/editor";
 
 type FormData = {
   to: string;
@@ -15,22 +16,33 @@ type FormData = {
   bcc?: string;
   replyTo?: string;
   priority?: "high" | "normal" | "low";
+  readReceipt?: boolean;
   subject: string;
   body: string;
 };
 
 export default function SendPage() {
-  const { identity, addEmail } = useAppStore();
-  const [tab, setTab] = React.useState<"HTML" | "Plain Text">("HTML");
+  const { identity, addEmail, templates, saveTemplate, deleteTemplate } = useAppStore();
   const [showCcBcc, setShowCcBcc] = React.useState(false);
   const [showMoreOptions, setShowMoreOptions] = React.useState(false);
+  const [showTemplates, setShowTemplates] = React.useState(false);
   const [attachments, setAttachments] = React.useState<File[]>([]);
-  const { register, handleSubmit, reset, setValue } = useForm<FormData>({
+  const { register, handleSubmit, reset, setValue, watch } = useForm<FormData>({
     defaultValues: {
-      priority: "normal"
+      priority: "normal",
+      readReceipt: false,
+      body: ""
     }
   });
+
+  // Explicitly register body so it doesn't unregister when switching tabs
+  React.useEffect(() => {
+    register("body", { required: true });
+  }, [register]);
   const router = useRouter();
+  
+  const watchBody = watch("body");
+  const watchSubject = watch("subject");
 
   const fromDisplay = identity.fromName && identity.fromEmail 
     ? `${identity.fromName} <${identity.fromEmail}>`
@@ -44,14 +56,11 @@ export default function SendPage() {
       if (data.bcc) formData.append("bcc", data.bcc);
       if (data.replyTo) formData.append("replyTo", data.replyTo);
       if (data.priority && data.priority !== "normal") formData.append("priority", data.priority);
+      if (data.readReceipt) formData.append("readReceipt", "true");
       formData.append("subject", data.subject);
       if (fromDisplay) formData.append("fromDisplay", fromDisplay);
       
-      if (tab === "HTML") {
-        formData.append("html", data.body);
-      } else {
-        formData.append("text", data.body);
-      }
+      formData.append("html", data.body);
 
       attachments.forEach((file) => {
         formData.append("attachments", file);
@@ -74,7 +83,7 @@ export default function SendPage() {
         date: new Date().toLocaleString(),
         msgId,
         body: data.body,
-        html: tab === "HTML",
+        html: true,
       });
       toast.success("Email sent successfully.");
       reset();
@@ -92,7 +101,7 @@ export default function SendPage() {
         date: new Date().toLocaleString(),
         msgId: '-',
         body: variables.body,
-        html: tab === "HTML",
+        html: true,
       });
       toast.error(error.message);
     }
@@ -127,9 +136,66 @@ export default function SendPage() {
     setAttachments(attachments.filter((_, i) => i !== index));
   };
 
+  const handleSaveTemplate = () => {
+    if (!watchSubject) {
+      toast.error("Please enter a subject to save as a template.");
+      return;
+    }
+    saveTemplate({
+      id: 'tpl_' + Date.now(),
+      name: watchSubject,
+      subject: watchSubject,
+      body: watchBody || "",
+      html: true,
+    });
+    toast.success("Saved to templates.");
+  };
+
+  const loadTemplate = (id: string) => {
+    const tpl = templates.find((t) => t.id === id);
+    if (tpl) {
+      setValue("subject", tpl.subject);
+      setValue("body", tpl.body);
+      setShowTemplates(false);
+      toast.info("Template loaded.");
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold tracking-tight">Compose Email</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">Compose Email</h1>
+        <div className="relative">
+          <Button variant="secondary" onClick={() => setShowTemplates(!showTemplates)}>
+            <FolderOpen className="h-4 w-4 mr-2" />
+            Templates ({templates.length})
+          </Button>
+          {showTemplates && (
+            <div className="absolute right-0 top-full mt-2 w-64 bg-surface border border-border rounded-md shadow-lg z-50 overflow-hidden">
+              <div className="p-2 border-b border-border-soft flex justify-between items-center bg-surface-warm/50">
+                <span className="text-sm font-medium text-muted">Your Templates</span>
+                <button type="button" onClick={() => setShowTemplates(false)} className="text-muted hover:text-fg"><X className="h-4 w-4" /></button>
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {templates.length === 0 ? (
+                  <div className="p-4 text-center text-muted text-sm">No templates saved.</div>
+                ) : (
+                  templates.map((tpl) => (
+                    <div key={tpl.id} className="flex justify-between items-center p-2 border-b border-border-soft hover:bg-surface-warm transition-colors group">
+                      <button type="button" onClick={() => loadTemplate(tpl.id)} className="text-sm font-medium text-fg text-left truncate flex-1 hover:text-accent">
+                        {tpl.name}
+                      </button>
+                      <button type="button" onClick={() => deleteTemplate(tpl.id)} className="text-muted hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity ml-2">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="rounded-lg border border-border bg-surface overflow-hidden flex flex-col shadow-sm">
         
@@ -154,9 +220,9 @@ export default function SendPage() {
             <button 
               type="button" 
               onClick={() => setShowCcBcc(true)}
-              className="text-xs font-semibold text-muted hover:text-fg uppercase tracking-wider px-2 py-1 transition-colors"
+              className="text-sm font-medium text-muted hover:text-fg px-2 py-1 transition-colors"
             >
-              Cc Bcc
+              Cc / Bcc
             </button>
           )}
         </div>
@@ -202,7 +268,7 @@ export default function SendPage() {
             <button 
               type="button" 
               onClick={() => setShowMoreOptions(true)}
-              className="text-xs font-semibold text-muted hover:text-fg px-2 py-1 transition-colors ml-2"
+              className="text-sm font-medium text-muted hover:text-fg px-2 py-1 transition-colors ml-2"
             >
               More Options
             </button>
@@ -234,33 +300,36 @@ export default function SendPage() {
                 <option value="low">Low</option>
               </select>
             </div>
+            <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
+              <span className="text-muted text-sm w-20 font-medium whitespace-nowrap">Read Receipt</span>
+              <div className="flex items-center flex-1">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 rounded border-border bg-transparent text-accent focus:ring-accent focus:ring-2 cursor-pointer disabled:opacity-50"
+                  disabled={sendMutation.isPending}
+                  {...register("readReceipt")}
+                />
+                <span className="ml-2 text-xs text-muted">Request a read receipt from the recipient</span>
+              </div>
+            </div>
           </>
         )}
 
         {/* Format Toggle & Body Area */}
         <div className="flex flex-col flex-1">
-          <div className="flex px-4 py-2 bg-surface-warm/30 border-b border-border-soft gap-4 text-[11px] font-semibold uppercase">
-            <span 
-              onClick={() => !sendMutation.isPending && setTab("HTML")}
-              className={`cursor-pointer transition-colors ${tab === "HTML" ? "text-accent" : "text-muted hover:text-fg"}`}
-            >
-              HTML
-            </span>
-            <span 
-              onClick={() => !sendMutation.isPending && setTab("Plain Text")}
-              className={`cursor-pointer transition-colors ${tab === "Plain Text" ? "text-accent" : "text-muted hover:text-fg"}`}
-            >
-              Plain Text
-            </span>
+          <div className="flex px-4 py-2 bg-surface-warm/30 border-b border-border-soft gap-4 text-sm font-medium items-center justify-between">
+            <span className="text-muted">Visual Editor</span>
+            <button type="button" onClick={handleSaveTemplate} className="text-muted hover:text-fg flex items-center gap-1 transition-colors">
+              <Save className="h-4 w-4" /> Save Template
+            </button>
           </div>
           
           <div className="p-4 flex-1">
-            <textarea 
-              placeholder={tab === "HTML" ? "<p>Write your message here...</p>" : "Write your message here..."}
-              required 
+            <Editor 
+              value={watchBody || ""}
+              onChange={(val) => setValue("body", val)}
+              placeholder="Write your message here..."
               disabled={sendMutation.isPending}
-              className="w-full min-h-[300px] bg-transparent outline-none resize-y text-sm font-mono text-fg placeholder:text-muted/50 disabled:opacity-50"
-              {...register("body")}
             />
           </div>
         </div>
@@ -292,7 +361,7 @@ export default function SendPage() {
               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full disabled:cursor-not-allowed"
               onChange={handleFileChange}
             />
-            <Button type="button" variant="secondary" size="sm" disabled={sendMutation.isPending}>
+            <Button type="button" variant="secondary" disabled={sendMutation.isPending}>
               <Paperclip className="h-4 w-4 mr-2" />
               Add Attachments
             </Button>

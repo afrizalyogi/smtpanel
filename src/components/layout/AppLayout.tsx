@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Send, History, Settings, Menu, Mail, User } from "lucide-react";
+import { LayoutDashboard, Send, History, Settings, Menu, Mail, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store";
 
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/send", label: "Send Email", icon: Send },
   { href: "/sent", label: "Sent History", icon: History },
+  { href: "/templates", label: "Templates", icon: FileText },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

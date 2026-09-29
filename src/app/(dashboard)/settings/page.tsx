@@ -100,18 +100,18 @@ export default function SettingsPage() {
 
           <Card className="border-danger/30">
             <CardHeader>
-              <CardTitle className="text-danger">Security</CardTitle>
+              <CardTitle className="text-danger">Security & Data</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted text-sm mb-4">
-                Disconnecting will remove your securely stored SMTP credentials from the server's session cookie and clear your local browser history.
+                Disconnecting will remove your securely stored SMTP credentials from the server's session cookie and <strong>clear your local browser history and templates</strong>.
               </p>
               <Button 
                 variant="danger" 
                 onClick={() => disconnectMutation.mutate()}
                 disabled={disconnectMutation.isPending}
               >
-                {disconnectMutation.isPending ? "Disconnecting..." : "Disconnect SMTP"}
+                {disconnectMutation.isPending ? "Disconnecting..." : "Disconnect SMTP & Clear Data"}
               </Button>
             </CardContent>
           </Card>

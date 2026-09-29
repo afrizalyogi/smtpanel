@@ -110,7 +110,7 @@ export default function ConnectPage() {
               <select
                 id="encryption"
                 disabled={isPending}
-                className="flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
                 {...register("encryption")}
               >
                 <option value="STARTTLS">STARTTLS</option>

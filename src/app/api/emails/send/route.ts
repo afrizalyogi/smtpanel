@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
     const bcc = formData.get('bcc') as string;
     const replyTo = formData.get('replyTo') as string;
     const priority = formData.get('priority') as string;
+    const readReceipt = formData.get('readReceipt') === 'true';
     const subject = formData.get('subject') as string;
     const html = formData.get('html') as string;
     const text = formData.get('text') as string;
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const info = await transporter.sendMail({
+    const mailOptions: any = {
       from: fromDisplay || username,
       to,
       cc: cc || undefined,
@@ -83,7 +84,15 @@ export async function POST(request: NextRequest) {
       text: text || undefined,
       html: html || undefined,
       attachments: attachments.length > 0 ? attachments : undefined,
-    });
+    };
+
+    if (readReceipt) {
+      mailOptions.headers = {
+        'Disposition-Notification-To': replyTo || fromDisplay || username
+      };
+    }
+
+    const info = await transporter.sendMail(mailOptions);
 
     return NextResponse.json({
       success: true,

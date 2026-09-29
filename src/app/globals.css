@@ -92,3 +92,44 @@ option {
   background-color: var(--surface);
   color: var(--fg);
 }
+
+/* React Quill Dark Mode Overrides */
+.editor-container .ql-toolbar {
+  background-color: var(--surface-warm);
+  border-color: var(--border-soft) !important;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+.editor-container .ql-container {
+  border-color: var(--border-soft) !important;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+}
+.editor-container .ql-editor {
+  min-height: 250px;
+  color: var(--fg);
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+.editor-container .ql-editor.ql-blank::before {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 14px !important;
+  font-family: var(--font-sans) !important;
+}
+.editor-container .ql-snow .ql-stroke {
+  stroke: var(--fg-2);
+}
+.editor-container .ql-snow .ql-fill, .editor-container .ql-snow .ql-stroke.ql-fill {
+  fill: var(--fg-2);
+}
+.editor-container .ql-snow .ql-picker {
+  color: var(--fg-2);
+}
+.editor-container .ql-snow .ql-picker-options {
+  background-color: var(--surface);
+  border-color: var(--border);
+}
