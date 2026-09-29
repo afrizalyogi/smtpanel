@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
@@ -6,12 +6,17 @@ import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport: Viewport = {
+  themeColor: "#F48120",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://smtpanel.vercel.app"),
   title: "SMTPanel | Privacy-First Stateless SMTP Web Client",
   description: "Connect your SMTP server and send emails instantly. SMTPanel is a zero-database, privacy-first web client where your data stays locally in your browser.",
-  keywords: ["SMTP", "Email Client", "Self-hosted", "Newsletter", "Privacy-first", "Stateless", "Zero Database", "Next.js"],
+  keywords: ["SMTP", "Email Client", "Self-hosted", "Newsletter", "Privacy-first", "Stateless", "Zero Database", "Next.js", "PWA"],
   authors: [{ name: "SMTPanel Contributors" }],
+  manifest: "/manifest.json",
   openGraph: {
     title: "SMTPanel | Privacy-First SMTP Web Client",
     description: "Zero databases. No telemetry. Manage and send emails securely directly from your browser.",

@@ -1,0 +1,17 @@
+{
+  "name": "SMTPanel",
+  "short_name": "SMTPanel",
+  "description": "Privacy-First Stateless SMTP Web Client",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0B0B",
+  "theme_color": "#F48120",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

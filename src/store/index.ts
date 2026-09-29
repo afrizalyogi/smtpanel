@@ -54,6 +54,7 @@ interface AppState {
   };
   setIdentity: (name: string, email: string) => void;
   clearData: () => void;
+  wipeLocalData: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -132,6 +133,13 @@ export const useAppStore = create<AppState>()(
           contacts: [],
           stats: { total: 0, success: 0, failed: 0 },
           identity: { fromName: '', fromEmail: '' },
+        }),
+      wipeLocalData: () =>
+        set({
+          emails: [],
+          templates: [],
+          contacts: [],
+          stats: { total: 0, success: 0, failed: 0 },
         }),
     }),
     {

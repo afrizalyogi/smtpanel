@@ -158,11 +158,12 @@ export default function SendPage() {
         return;
       }
 
-      for (const file of newFiles) {
-        if (file.size > 10 * 1024 * 1024) {
-          toast.error(`File ${file.name} exceeds 10MB limit.`);
-          return;
-        }
+      const currentSize = attachments.reduce((acc, f) => acc + f.size, 0);
+      const newSize = newFiles.reduce((acc, f) => acc + f.size, 0);
+
+      if (currentSize + newSize > 4 * 1024 * 1024) {
+        toast.error("Total attachment size exceeds 4MB limit to prevent server payload errors.");
+        return;
       }
 
       setAttachments([...attachments, ...newFiles]);

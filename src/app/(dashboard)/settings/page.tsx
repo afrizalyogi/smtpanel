@@ -15,7 +15,7 @@ import { Key, Copy, Download } from "lucide-react";
 import { encryptWithPin } from "@/lib/client-crypto";
 
 export default function SettingsPage() {
-  const { identity, setIdentity, clearData, templates, emails, contacts } = useAppStore();
+  const { identity, setIdentity, clearData, wipeLocalData, templates, emails, contacts } = useAppStore();
   const router = useRouter();
   
   const [exportState, setExportState] = React.useState<{ 
@@ -209,15 +209,30 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted text-sm">
-                Disconnecting will remove your securely stored SMTP credentials from the server's session cookie and <strong>clear your local browser history and templates</strong>.
+                Disconnecting will remove your securely stored SMTP credentials from the server's session cookie and <strong>clear your local browser history and templates</strong>. You can also choose to wipe local data without disconnecting.
               </p>
-              <Button 
-                variant="danger" 
-                onClick={() => disconnectMutation.mutate()}
-                disabled={disconnectMutation.isPending}
-              >
-                {disconnectMutation.isPending ? "Disconnecting..." : "Disconnect SMTP & Clear Data"}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  variant="danger" 
+                  onClick={() => disconnectMutation.mutate()}
+                  disabled={disconnectMutation.isPending}
+                  className="flex-1"
+                >
+                  {disconnectMutation.isPending ? "Disconnecting..." : "Disconnect SMTP & Clear Data"}
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => {
+                    if (confirm("Are you sure you want to wipe all local templates, contacts, and history? This cannot be undone.")) {
+                      wipeLocalData();
+                      toast.success("Local data wiped successfully.");
+                    }
+                  }}
+                  className="flex-1 text-danger hover:bg-danger/10 hover:border-danger hover:text-danger"
+                >
+                  Wipe Local Data Only
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
