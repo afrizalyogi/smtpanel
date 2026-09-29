@@ -127,7 +127,7 @@ export default function ConnectPage() {
         {/* TOKEN MODAL OVERLAY */}
         {tokenModal.isOpen && (
           <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setTokenModal(prev => ({ ...prev, isOpen: false }))}>
-            <div className="bg-surface border border-border w-full max-w-md rounded-lg shadow-xl flex flex-col p-6 max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-surface border border-border w-full max-w-md rounded-lg shadow-xl flex flex-col p-6 max-h-[90vh] animate-slide-down" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-lg flex items-center gap-2">
                 <Key className="h-5 w-5 text-accent" />

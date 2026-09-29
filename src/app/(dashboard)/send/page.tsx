@@ -212,7 +212,7 @@ export default function SendPage() {
           {showTemplates && (
             <>
               <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-40 animate-fade-in" onClick={() => setShowTemplates(false)} />
-              <div className="absolute right-0 left-0 sm:left-auto top-full mt-2 w-full sm:w-80 bg-surface border border-border rounded-md shadow-lg z-50 overflow-hidden animate-slide-in">
+              <div className="absolute right-0 left-0 sm:left-auto top-full mt-2 w-full sm:w-80 bg-surface border border-border rounded-md shadow-lg z-50 overflow-hidden animate-slide-down">
               <div className="p-3 border-b border-border-soft flex justify-between items-center bg-surface-warm/50">
                 <span className="text-sm font-medium text-fg">Select Template</span>
                 <button type="button" onClick={() => setShowTemplates(false)} className="text-muted hover:text-fg"><X className="h-4 w-4" /></button>
