@@ -57,7 +57,7 @@ export default function DashboardPage() {
                 <TableHead>Recipient</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead className="whitespace-nowrap">Date</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -72,7 +72,7 @@ export default function DashboardPage() {
                         {email.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted">{email.date}</TableCell>
+                    <TableCell className="text-muted whitespace-nowrap">{email.date}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" onClick={() => router.push(`/sent/${email.id}`)}>
                         Detail
