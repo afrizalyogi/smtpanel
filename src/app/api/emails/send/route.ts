@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
     const cc = formData.get('cc') as string;
     const bcc = formData.get('bcc') as string;
     const replyTo = formData.get('replyTo') as string;
+    const inReplyTo = formData.get('inReplyTo') as string;
     const priority = formData.get('priority') as string;
     const readReceipt = formData.get('readReceipt') === 'true';
     const subject = formData.get('subject') as string;
@@ -62,6 +63,12 @@ export async function POST(request: NextRequest) {
     const secure = encryption === 'TLS';
     const requireTLS = encryption === 'STARTTLS';
 
+    let formattedInReplyTo = inReplyTo ? inReplyTo.trim() : undefined;
+    if (formattedInReplyTo) {
+      if (!formattedInReplyTo.startsWith('<')) formattedInReplyTo = '<' + formattedInReplyTo;
+      if (!formattedInReplyTo.endsWith('>')) formattedInReplyTo = formattedInReplyTo + '>';
+    }
+
     const transporter = nodemailer.createTransport({
       host,
       port: Number(port),
@@ -79,6 +86,8 @@ export async function POST(request: NextRequest) {
       cc: cc || undefined,
       bcc: bcc || undefined,
       replyTo: replyTo || undefined,
+      inReplyTo: formattedInReplyTo || undefined,
+      references: formattedInReplyTo || undefined,
       priority: (priority as "high" | "normal" | "low") || undefined,
       subject,
       text: text || undefined,

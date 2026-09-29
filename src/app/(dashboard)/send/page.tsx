@@ -16,6 +16,7 @@ type FormData = {
   cc?: string;
   bcc?: string;
   replyTo?: string;
+  inReplyTo?: string;
   priority?: "high" | "normal" | "low";
   readReceipt?: boolean;
   subject: string;
@@ -93,6 +94,7 @@ export default function SendPage() {
       if (data.cc) formData.append("cc", data.cc);
       if (data.bcc) formData.append("bcc", data.bcc);
       if (data.replyTo) formData.append("replyTo", data.replyTo);
+      if (data.inReplyTo) formData.append("inReplyTo", data.inReplyTo);
       if (data.priority && data.priority !== "normal") formData.append("priority", data.priority);
       if (data.readReceipt) formData.append("readReceipt", "true");
       formData.append("subject", data.subject);
@@ -363,6 +365,22 @@ export default function SendPage() {
                   })} 
                 />
                 {renderContactDropdown("replyTo")}
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-start px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
+              <div className="w-full sm:w-20 pt-1">
+                <span className="text-muted text-sm font-medium">In-Reply-To</span>
+              </div>
+              <div className="flex-1 relative w-full flex flex-col">
+                <input 
+                  type="text" 
+                  placeholder="<message-id@domain.com>"
+                  className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
+                  disabled={sendMutation.isPending}
+                  autoComplete="off"
+                  {...register("inReplyTo")} 
+                />
+                <span className="text-xs text-muted/60 mt-0.5">Message-ID to thread this reply</span>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
