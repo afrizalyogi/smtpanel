@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Send, History, Settings, Menu, Mail, FileText } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LayoutDashboard, Send, History, Settings, Menu, Mail, FileText, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store";
+import { toast } from "sonner";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -17,13 +18,27 @@ const NAV_ITEMS = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const { identity } = useAppStore();
+  const [showUserMenu, setShowUserMenu] = React.useState(false);
+  const { identity, clearData } = useAppStore();
 
   // Close mobile menu on route change
   React.useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  const handleDisconnect = async () => {
+    try {
+      setShowUserMenu(false);
+      await fetch('/api/smtp/disconnect', { method: 'POST' });
+      clearData();
+      toast.success("SMTP Disconnected.");
+      router.push("/");
+    } catch (e) {
+      toast.error("Failed to disconnect.");
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row bg-bg">
@@ -69,15 +84,39 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="mt-auto px-3 pb-3">
-          {/* User Profile Block */}
-          <div className="mb-3 flex items-center gap-3 rounded-md hover:bg-white/5 transition-colors p-3 cursor-pointer">
-            <div className="flex flex-col overflow-hidden">
-              <span className="truncate text-sm font-medium text-fg">
-                {identity.fromName || "No Name"}
-              </span>
-              <span className="truncate text-xs text-muted">
-                {identity.fromEmail || "No Email"}
-              </span>
+          {/* User Profile Block & Menu */}
+          <div className="relative mb-3">
+            {showUserMenu && (
+              <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
+            )}
+            
+            {showUserMenu && (
+              <div className="absolute bottom-full left-0 mb-1 w-full bg-surface border border-border-soft rounded-md shadow-lg z-50 overflow-hidden animate-fade-in">
+                <button 
+                  onClick={handleDisconnect}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-danger hover:bg-danger/10 transition-colors text-left"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Disconnect SMTP
+                </button>
+              </div>
+            )}
+
+            <div 
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className={cn(
+                "flex items-center justify-between rounded-md transition-colors p-3 cursor-pointer",
+                showUserMenu ? "bg-white/5" : "hover:bg-white/5"
+              )}
+            >
+              <div className="flex flex-col overflow-hidden">
+                <span className="truncate text-sm font-medium text-fg">
+                  {identity.fromName || "No Name"}
+                </span>
+                <span className="truncate text-xs text-muted">
+                  {identity.fromEmail || "No Email"}
+                </span>
+              </div>
             </div>
           </div>
 
