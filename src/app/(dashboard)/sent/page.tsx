@@ -124,7 +124,6 @@ export default function SentPage() {
               {filteredEmails.length > 0 ? (
                 filteredEmails.map((email) => (
                   <TableRow key={email.id}>
-                    <TableCell className="text-muted">{email.date}</TableCell>
                     <TableCell className="font-mono">{email.to}</TableCell>
                     <TableCell>{email.subject}</TableCell>
                     <TableCell>
@@ -132,17 +131,17 @@ export default function SentPage() {
                         {email.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-mono text-muted text-xs">{email.msgId}</TableCell>
-                    <TableCell>
-                      <Button variant="secondary" size="sm" onClick={() => router.push(`/sent/${email.id}`)}>
-                        Details
+                    <TableCell className="text-muted">{email.date}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => router.push(`/sent/${email.id}`)}>
+                        Detail
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted py-8">
+                  <TableCell colSpan={5} className="text-center text-muted py-8">
                     No emails found.
                   </TableCell>
                 </TableRow>

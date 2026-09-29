@@ -81,7 +81,7 @@ export default function DashboardPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted py-8">
+                  <TableCell colSpan={5} className="text-center text-muted py-8">
                     No recent activity.
                   </TableCell>
                 </TableRow>
