@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/store";
 import { toast } from "sonner";
-import { Users, Upload, Download, X, Edit, Plus, MoreHorizontal } from "lucide-react";
+import { Users, Upload, Download, X, Edit, Plus, MoreHorizontal, Search, ArrowUpDown } from "lucide-react";
 
 export default function ContactsPage() {
   const { contacts, saveContact, updateContact, deleteContact, importContacts } = useAppStore();
@@ -18,6 +18,9 @@ export default function ContactsPage() {
   const [tagsInput, setTagsInput] = React.useState<string>("");
   const [tags, setTags] = React.useState<string[]>([]);
   const [openMenuId, setOpenMenuId] = React.useState<string | null>(null);
+  
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [sortBy, setSortBy] = React.useState<"newest" | "oldest" | "name-asc" | "name-desc">("newest");
 
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -100,6 +103,35 @@ export default function ContactsPage() {
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
   };
+
+  const filteredAndSortedContacts = React.useMemo(() => {
+    let result = [...contacts];
+    
+    if (searchQuery) {
+      const lowerQ = searchQuery.toLowerCase();
+      result = result.filter(c => 
+        c.name.toLowerCase().includes(lowerQ) || 
+        c.email.toLowerCase().includes(lowerQ) || 
+        (c.tags && c.tags.some(t => t.toLowerCase().includes(lowerQ)))
+      );
+    }
+
+    switch (sortBy) {
+      case "name-asc":
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name-desc":
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "newest":
+        result.reverse();
+        break;
+      case "oldest":
+        break;
+    }
+
+    return result;
+  }, [contacts, searchQuery, sortBy]);
 
   const handleExportAll = () => {
     if (contacts.length === 0) {
@@ -221,14 +253,58 @@ export default function ContactsPage() {
         </CardContent>
       </Card>
 
+      {/* Search and Sort Controls */}
+      {contacts.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface border border-border p-3 rounded-lg shadow-sm">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
+            <Input 
+              placeholder="Search contacts..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-9"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-fg"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <ArrowUpDown className="h-4 w-4 text-muted shrink-0" />
+            <select 
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="h-9 w-full sm:w-auto rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+            </select>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {contacts.length === 0 ? (
           <div className="col-span-full py-12 text-center border border-dashed border-border-soft rounded-lg">
             <Users className="h-8 w-8 text-muted mx-auto mb-3" />
             <p className="text-muted text-sm">You haven't saved any contacts yet.</p>
           </div>
+        ) : filteredAndSortedContacts.length === 0 ? (
+          <div className="col-span-full py-12 text-center border border-dashed border-border-soft rounded-lg">
+            <Search className="h-8 w-8 text-muted mx-auto mb-3" />
+            <p className="text-muted text-sm">No contacts match your search.</p>
+            <Button variant="ghost" onClick={() => setSearchQuery("")} className="mt-4">
+              Clear Search
+            </Button>
+          </div>
         ) : (
-          contacts.map((contact) => (
+          filteredAndSortedContacts.map((contact) => (
             <Card key={contact.id} className="mb-0 flex flex-col relative group overflow-visible">
               <CardContent className="p-5 flex-1 flex flex-col justify-between">
                 <div className="flex justify-between items-start">
