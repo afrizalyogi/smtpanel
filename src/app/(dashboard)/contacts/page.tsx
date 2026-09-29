@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/store";
 import { toast } from "sonner";
-import { Users, Upload, Download, X, Edit, Plus } from "lucide-react";
+import { Users, Upload, Download, X, Edit, Plus, MoreVertical } from "lucide-react";
 
 export default function ContactsPage() {
   const { contacts, saveContact, updateContact, deleteContact, importContacts } = useAppStore();
@@ -17,6 +17,14 @@ export default function ContactsPage() {
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [tagsInput, setTagsInput] = React.useState<string>("");
   const [tags, setTags] = React.useState<string[]>([]);
+  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null);
+
+  // Close menu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = () => setOpenMenuId(null);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   const { register, handleSubmit, reset, setValue } = useForm({
     defaultValues: { name: "", email: "" },
@@ -153,13 +161,8 @@ export default function ContactsPage() {
 
       <Card className={editingId ? "border-accent/50 shadow-md transition-all" : ""}>
         <CardHeader>
-          <CardTitle className="flex justify-between items-center">
+          <CardTitle>
             {editingId ? <span className="text-accent">Edit Contact</span> : <span>Add New Contact</span>}
-            {editingId && (
-              <button onClick={cancelEdit} className="text-muted hover:text-fg text-sm flex items-center gap-1 font-normal">
-                <X className="h-4 w-4" /> Cancel
-              </button>
-            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -200,9 +203,16 @@ export default function ContactsPage() {
               )}
             </div>
 
-            <Button type="submit">
-              {editingId ? "Update Contact" : "Save Contact"}
-            </Button>
+            <div className="flex gap-3 pt-2">
+              <Button type="submit" className="flex-1 md:flex-none">
+                {editingId ? "Update Contact" : "Save Contact"}
+              </Button>
+              {editingId && (
+                <Button type="button" variant="ghost" onClick={cancelEdit}>
+                  Cancel
+                </Button>
+              )}
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -222,28 +232,37 @@ export default function ContactsPage() {
                     <h3 className="font-semibold text-fg text-base truncate max-w-[180px]" title={contact.name}>{contact.name}</h3>
                     <p className="text-sm text-muted mt-1 truncate max-w-[180px]" title={contact.email}>{contact.email}</p>
                   </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="relative" onClick={(e) => e.stopPropagation()}>
                     <button 
-                      onClick={() => handleEdit(contact)}
-                      className="text-muted hover:text-accent p-1.5 rounded-md hover:bg-surface-warm transition-colors"
-                      title="Edit Contact"
+                      onClick={() => setOpenMenuId(openMenuId === contact.id ? null : contact.id)}
+                      className="text-muted hover:text-fg p-1.5 rounded-md hover:bg-surface-warm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
                     >
-                      <Edit className="h-4 w-4" />
+                      <MoreVertical className="h-4 w-4" />
                     </button>
-                    <button 
-                      onClick={() => handleExportSingle(contact)}
-                      className="text-muted hover:text-fg p-1.5 rounded-md hover:bg-surface-warm transition-colors"
-                      title="Export Contact"
-                    >
-                      <Download className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => deleteContact(contact.id)}
-                      className="text-muted hover:text-danger p-1.5 rounded-md hover:bg-surface-warm transition-colors"
-                      title="Delete Contact"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
+                    
+                    {openMenuId === contact.id && (
+                      <div className="absolute right-0 top-full mt-1 w-36 bg-surface border border-border rounded-md shadow-lg z-10 overflow-hidden py-1 animate-fade-in">
+                        <button 
+                          onClick={() => { handleEdit(contact); setOpenMenuId(null); }}
+                          className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"
+                        >
+                          <Edit className="h-3.5 w-3.5 text-muted" /> Edit
+                        </button>
+                        <button 
+                          onClick={() => { handleExportSingle(contact); setOpenMenuId(null); }}
+                          className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"
+                        >
+                          <Download className="h-3.5 w-3.5 text-muted" /> Export
+                        </button>
+                        <div className="h-px bg-border-soft my-1"></div>
+                        <button 
+                          onClick={() => { deleteContact(contact.id); setOpenMenuId(null); }}
+                          className="w-full text-left px-3 py-2 text-sm text-danger hover:bg-danger/10 flex items-center gap-2"
+                        >
+                          <X className="h-3.5 w-3.5" /> Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -5,7 +5,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAppStore, TemplateRecord } from "@/store";
 import { toast } from "sonner";
-import { Download, Upload, X, AlertTriangle, FileText, Edit, Save } from "lucide-react";
+import { Download, Upload, X, AlertTriangle, FileText, Edit, Save, MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Editor } from "@/components/ui/editor";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,13 @@ export default function TemplatesPage() {
 
   const [editingTemplate, setEditingTemplate] = React.useState<TemplateRecord | null>(null);
   const [editForm, setEditForm] = React.useState<{name: string; subject: string; body: string}>({ name: "", subject: "", body: "" });
+  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = () => setOpenMenuId(null);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   const handleEditClick = (tpl: TemplateRecord) => {
     setEditingTemplate(tpl);
@@ -183,28 +190,37 @@ export default function TemplatesPage() {
                   <CardTitle className="text-base truncate max-w-[180px]" title={tpl.name}>{tpl.name}</CardTitle>
                   <p className="text-xs text-muted mt-1 truncate max-w-[180px]">{tpl.subject}</p>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="relative" onClick={(e) => e.stopPropagation()}>
                   <button 
-                    onClick={() => handleEditClick(tpl)}
-                    className="text-muted hover:text-accent p-1.5 rounded-md hover:bg-surface-warm transition-colors"
-                    title="Edit Template"
+                    onClick={() => setOpenMenuId(openMenuId === tpl.id ? null : tpl.id)}
+                    className="text-muted hover:text-fg p-1.5 rounded-md hover:bg-surface-warm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
                   >
-                    <Edit className="h-4 w-4" />
+                    <MoreVertical className="h-4 w-4" />
                   </button>
-                  <button 
-                    onClick={() => handleExportSingle(tpl)}
-                    className="text-muted hover:text-fg p-1.5 rounded-md hover:bg-surface-warm transition-colors"
-                    title="Export Template"
-                  >
-                    <Download className="h-4 w-4" />
-                  </button>
-                  <button 
-                    onClick={() => deleteTemplate(tpl.id)}
-                    className="text-muted hover:text-danger p-1.5 rounded-md hover:bg-surface-warm transition-colors"
-                    title="Delete Template"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+                  
+                  {openMenuId === tpl.id && (
+                    <div className="absolute right-0 top-full mt-1 w-36 bg-surface border border-border rounded-md shadow-lg z-10 overflow-hidden py-1 animate-fade-in">
+                      <button 
+                        onClick={() => { handleEditClick(tpl); setOpenMenuId(null); }}
+                        className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"
+                      >
+                        <Edit className="h-3.5 w-3.5 text-muted" /> Edit
+                      </button>
+                      <button 
+                        onClick={() => { handleExportSingle(tpl); setOpenMenuId(null); }}
+                        className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"
+                      >
+                        <Download className="h-3.5 w-3.5 text-muted" /> Export
+                      </button>
+                      <div className="h-px bg-border-soft my-1"></div>
+                      <button 
+                        onClick={() => { deleteTemplate(tpl.id); setOpenMenuId(null); }}
+                        className="w-full text-left px-3 py-2 text-sm text-danger hover:bg-danger/10 flex items-center gap-2"
+                      >
+                        <X className="h-3.5 w-3.5" /> Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="p-4 flex-1">
