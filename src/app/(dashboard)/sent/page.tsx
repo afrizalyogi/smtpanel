@@ -110,7 +110,8 @@ export default function SentPage() {
           </select>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
+          <div className="w-full overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Recipient</TableHead>
@@ -148,6 +149,7 @@ export default function SentPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

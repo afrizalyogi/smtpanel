@@ -115,7 +115,7 @@ export default function SettingsPage() {
               Your SMTP credentials are encrypted and stored in a secure HTTP-only cookie.
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Host</Label>
                 <Input value="••••••••" disabled className="bg-surface-warm" />

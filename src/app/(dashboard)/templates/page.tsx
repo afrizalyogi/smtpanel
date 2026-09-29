@@ -122,7 +122,7 @@ export default function TemplatesPage() {
               <button onClick={() => setEditingTemplate(null)} className="text-muted hover:text-fg"><X className="h-5 w-5" /></button>
             </div>
             <div className="p-4 space-y-4 flex-1 overflow-y-auto">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Template Name</Label>
                   <Input value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} />

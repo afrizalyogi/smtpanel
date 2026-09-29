@@ -181,7 +181,7 @@ export default function ConnectPage() {
         </div>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="host">SMTP Host</Label>
                 <Input id="host" placeholder="smtp.example.com" required disabled={isPending} {...register("host")} />
@@ -217,7 +217,7 @@ export default function ConnectPage() {
             </div>
 
             <div className="border-t border-border-soft pt-4 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="fromName">From Name</Label>
                   <Input id="fromName" placeholder="My Company" disabled={isPending} {...register("fromName")} />

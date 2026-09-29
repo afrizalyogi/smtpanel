@@ -50,7 +50,8 @@ export default function DashboardPage() {
           </Link>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
+          <div className="w-full overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Recipient</TableHead>
@@ -88,6 +89,7 @@ export default function DashboardPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
