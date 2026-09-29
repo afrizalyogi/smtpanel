@@ -404,7 +404,7 @@ export default function SendPage() {
               Add Attachments
             </Button>
           </div>
-          <Button type="submit" disabled={sendMutation.isPending} className="bg-accent hover:bg-accent-hover text-accent-on">
+          <Button type="submit" disabled={sendMutation.isPending}>
             {sendMutation.isPending ? "Sending..." : "Send Email"}
           </Button>
         </div>
