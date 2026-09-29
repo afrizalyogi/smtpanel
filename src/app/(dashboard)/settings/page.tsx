@@ -149,15 +149,17 @@ export default function SettingsPage() {
                         onChange={(e) => setExportState(prev => ({ ...prev, pin: e.target.value }))}
                       />
                     </div>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-3 mt-4 mb-2">
                       <input 
                         type="checkbox" 
                         id="includeData"
                         checked={exportState.includeData}
                         onChange={(e) => setExportState(prev => ({ ...prev, includeData: e.target.checked }))}
-                        className="rounded border-border bg-transparent text-accent focus:ring-accent"
+                        className="w-4 h-4 rounded border-border bg-transparent text-accent focus:ring-accent focus:ring-2 cursor-pointer shrink-0"
                       />
-                      <Label htmlFor="includeData" className="text-sm cursor-pointer">Include App Data (Templates, Contacts, History)</Label>
+                      <label htmlFor="includeData" className="text-sm cursor-pointer text-muted font-normal select-none">
+                        Include App Data (Templates, Contacts, History)
+                      </label>
                     </div>
                     <Button className="w-full" onClick={handleGenerateExport} disabled={exportState.loading}>
                       {exportState.loading ? "Encrypting..." : "Generate Token"}
