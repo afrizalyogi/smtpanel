@@ -17,6 +17,7 @@ export default function TemplatesPage() {
   const router = useRouter();
 
   const [editingTemplate, setEditingTemplate] = React.useState<TemplateRecord | null>(null);
+  const [isAddingNew, setIsAddingNew] = React.useState(false);
   const [editForm, setEditForm] = React.useState<{name: string; subject: string; body: string}>({ name: "", subject: "", body: "" });
   const [openMenuId, setOpenMenuId] = React.useState<string | null>(null);
 
@@ -31,24 +32,41 @@ export default function TemplatesPage() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  const handleAddClick = () => {
+    setEditForm({ name: "", subject: "", body: "" });
+    setIsAddingNew(true);
+  };
+
   const handleEditClick = (tpl: TemplateRecord) => {
     setEditingTemplate(tpl);
     setEditForm({ name: tpl.name, subject: tpl.subject, body: tpl.body });
   };
 
   const saveEdit = () => {
-    if (!editingTemplate) return;
     if (!editForm.name || !editForm.subject) {
       toast.error("Name and Subject are required.");
       return;
     }
-    updateTemplate(editingTemplate.id, {
-      name: editForm.name,
-      subject: editForm.subject,
-      body: editForm.body
-    });
-    toast.success("Template updated successfully.");
+    if (isAddingNew) {
+      const { saveTemplate } = useAppStore.getState();
+      saveTemplate({
+        id: 'tpl_' + Date.now(),
+        name: editForm.name,
+        subject: editForm.subject,
+        body: editForm.body,
+        html: true,
+      });
+      toast.success("Template added successfully.");
+    } else if (editingTemplate) {
+      updateTemplate(editingTemplate.id, {
+        name: editForm.name,
+        subject: editForm.subject,
+        body: editForm.body
+      });
+      toast.success("Template updated successfully.");
+    }
     setEditingTemplate(null);
+    setIsAddingNew(false);
   };
 
   const handleExport = () => {
@@ -114,12 +132,12 @@ export default function TemplatesPage() {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-5xl mx-auto relative">
-      {editingTemplate && (
+      {(editingTemplate || isAddingNew) && (
         <div className="fixed inset-0 bg-bg/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface border border-border w-full max-w-3xl rounded-lg shadow-xl flex flex-col max-h-[90vh] overflow-hidden">
             <div className="flex justify-between items-center p-4 border-b border-border-soft">
-              <h3 className="font-semibold text-lg flex items-center gap-2"><Edit className="h-5 w-5 text-accent" /> Edit Template</h3>
-              <button onClick={() => setEditingTemplate(null)} className="text-muted hover:text-fg"><X className="h-5 w-5" /></button>
+              <h3 className="font-semibold text-lg flex items-center gap-2"><Edit className="h-5 w-5 text-accent" /> {isAddingNew ? "Add New Template" : "Edit Template"}</h3>
+              <button onClick={() => { setEditingTemplate(null); setIsAddingNew(false); }} className="text-muted hover:text-fg"><X className="h-5 w-5" /></button>
             </div>
             <div className="p-4 space-y-4 flex-1 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -139,9 +157,9 @@ export default function TemplatesPage() {
                 </div>
               </div>
             </div>
-            <div className="p-4 border-t border-border-soft flex justify-end gap-3 bg-surface-warm/30">
-              <Button variant="secondary" onClick={() => setEditingTemplate(null)}>Cancel</Button>
-              <Button onClick={saveEdit}><Save className="h-4 w-4 mr-2" /> Save Changes</Button>
+            <div className="p-4 border-t border-border-soft flex flex-col sm:flex-row justify-end gap-3 bg-surface-warm/30">
+              <Button variant="secondary" onClick={() => { setEditingTemplate(null); setIsAddingNew(false); }} className="w-full sm:w-auto">Cancel</Button>
+              <Button onClick={saveEdit} className="w-full sm:w-auto"><Save className="h-4 w-4 mr-2" /> Save Changes</Button>
             </div>
           </div>
         </div>
@@ -149,22 +167,28 @@ export default function TemplatesPage() {
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Templates</h1>
-        <div className="flex flex-wrap gap-3">
-          <input 
-            type="file" 
-            accept=".json" 
-            className="hidden" 
-            ref={fileInputRef} 
-            onChange={handleImport} 
-          />
-          <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4 mr-2" />
-            Import
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full sm:w-auto">
+          <Button onClick={handleAddClick} className="w-full sm:w-auto">
+            <Edit className="h-4 w-4 mr-2" />
+            Add Template
           </Button>
-          <Button onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <input 
+              type="file" 
+              accept=".json" 
+              className="hidden" 
+              ref={fileInputRef} 
+              onChange={handleImport} 
+            />
+            <Button variant="secondary" onClick={() => fileInputRef.current?.click()} className="flex-1 sm:flex-none">
+              <Upload className="h-4 w-4 mr-2" />
+              Import
+            </Button>
+            <Button variant="secondary" onClick={handleExport} className="flex-1 sm:flex-none">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </div>
         </div>
       </div>
 

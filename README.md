@@ -60,7 +60,7 @@ SMTPanel is incredibly easy to self-host because it requires **no database conne
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/smtpanel.git
+   git clone https://github.com/afrizalyogi/smtpanel.git
    cd smtpanel
    ```
 

@@ -69,7 +69,7 @@ export default function SentPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Sent History</h1>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <input 
             type="file" 
             accept=".json" 
@@ -77,11 +77,11 @@ export default function SentPage() {
             className="hidden" 
             onChange={handleImport} 
           />
-          <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
+          <Button variant="secondary" onClick={() => fileInputRef.current?.click()} className="flex-1 sm:flex-none">
             <Upload className="h-4 w-4 mr-2" />
             Import
           </Button>
-          <Button onClick={handleExport}>
+          <Button variant="secondary" onClick={handleExport} className="flex-1 sm:flex-none">
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
@@ -89,18 +89,18 @@ export default function SentPage() {
       </div>
 
       <Card>
-        <CardHeader className="gap-4 md:flex-nowrap">
-          <div className="relative flex-1 max-w-sm">
+        <CardHeader className="flex flex-col sm:flex-row gap-4 flex-wrap sm:flex-nowrap">
+          <div className="relative flex-1 w-full sm:max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted" />
             <Input 
               placeholder="Search recipient or subject..." 
-              className="!pl-9"
+              className="!pl-9 w-full"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
           <select
-            className="flex h-9 w-[150px] rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="flex h-9 w-full sm:w-[150px] rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >

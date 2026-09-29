@@ -247,19 +247,19 @@ export default function SendPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="rounded-lg border border-border bg-surface overflow-hidden flex flex-col shadow-sm">
         
         {/* From Field (Muted) */}
-        <div className="flex items-center px-4 py-3 border-b border-border-soft bg-surface-warm/30">
-          <span className="text-muted text-sm w-20 font-medium">From</span>
-          <span className="flex-1 text-sm text-fg-2">{fromDisplay || "Not configured (Using SMTP Username)"}</span>
+        <div className="flex flex-col sm:flex-row sm:items-center px-4 py-3 border-b border-border-soft bg-surface-warm/30 gap-1 sm:gap-0">
+          <span className="text-muted text-sm w-full sm:w-20 font-medium">From</span>
+          <span className="flex-1 text-sm text-fg-2 break-all">{fromDisplay || "Not configured (Using SMTP Username)"}</span>
         </div>
 
         {/* To Field with Cc/Bcc Toggle */}
-        <div className="flex items-center px-4 py-2.5 border-b border-border-soft group focus-within:bg-surface-warm/10 transition-colors relative">
-          <span className="text-muted text-sm w-20 font-medium">To</span>
-          <div className="flex-1 flex items-center relative">
+        <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft group focus-within:bg-surface-warm/10 transition-colors relative gap-1 sm:gap-0">
+          <span className="text-muted text-sm w-full sm:w-20 font-medium">To</span>
+          <div className="flex-1 flex items-center relative w-full">
             <input 
               type="email" 
               placeholder="recipient@example.com"
-              className="flex-1 bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
+              className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
               disabled={sendMutation.isPending}
               autoComplete="off"
               onFocus={() => setActiveContactField("to")}
@@ -274,7 +274,7 @@ export default function SendPage() {
             <button 
               type="button" 
               onClick={() => setShowCcBcc(true)}
-              className="text-sm font-medium text-muted hover:text-fg px-2 py-1 transition-colors"
+              className="text-sm font-medium text-muted hover:text-fg px-2 py-1 transition-colors w-full sm:w-auto text-left sm:text-center mt-1 sm:mt-0 -ml-2 sm:ml-0"
             >
               Cc / Bcc
             </button>
@@ -284,9 +284,9 @@ export default function SendPage() {
         {/* Cc & Bcc Fields */}
         {showCcBcc && (
           <>
-            <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
-              <span className="text-muted text-sm w-20 font-medium">Cc</span>
-              <div className="flex-1 relative">
+            <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
+              <span className="text-muted text-sm w-full sm:w-20 font-medium">Cc</span>
+              <div className="flex-1 relative w-full">
                 <input 
                   type="text" 
                   placeholder="cc@example.com"
@@ -301,9 +301,9 @@ export default function SendPage() {
                 {renderContactDropdown("cc")}
               </div>
             </div>
-            <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
-              <span className="text-muted text-sm w-20 font-medium">Bcc</span>
-              <div className="flex-1 relative">
+            <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
+              <span className="text-muted text-sm w-full sm:w-20 font-medium">Bcc</span>
+              <div className="flex-1 relative w-full">
                 <input 
                   type="text" 
                   placeholder="bcc@example.com"
@@ -322,33 +322,35 @@ export default function SendPage() {
         )}
 
         {/* Subject Field */}
-        <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
-          <span className="text-muted text-sm w-20 font-medium">Subject</span>
-          <input 
-            type="text" 
-            placeholder="Hello from SMTPanel"
-            className="flex-1 bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
-            required 
-            disabled={sendMutation.isPending}
-            {...register("subject")} 
-          />
-          {!showMoreOptions && (
-            <button 
-              type="button" 
-              onClick={() => setShowMoreOptions(true)}
-              className="text-sm font-medium text-muted hover:text-fg px-2 py-1 transition-colors ml-2"
-            >
-              More Options
-            </button>
-          )}
+        <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
+          <span className="text-muted text-sm w-full sm:w-20 font-medium">Subject</span>
+          <div className="flex-1 w-full flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
+            <input 
+              type="text" 
+              placeholder="Hello from SMTPanel"
+              className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
+              required 
+              disabled={sendMutation.isPending}
+              {...register("subject")} 
+            />
+            {!showMoreOptions && (
+              <button 
+                type="button" 
+                onClick={() => setShowMoreOptions(true)}
+                className="text-sm font-medium text-muted hover:text-fg px-2 py-1 transition-colors sm:ml-2 w-full sm:w-auto text-left sm:text-center mt-1 sm:mt-0 -ml-2 sm:ml-0"
+              >
+                More Options
+              </button>
+            )}
+          </div>
         </div>
 
         {/* More Options Fields */}
         {showMoreOptions && (
           <>
-            <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
-              <span className="text-muted text-sm w-20 font-medium">Reply-To</span>
-              <div className="flex-1 relative">
+            <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
+              <span className="text-muted text-sm w-full sm:w-20 font-medium">Reply-To</span>
+              <div className="flex-1 relative w-full">
                 <input 
                   type="email" 
                   placeholder="reply@example.com"
@@ -363,10 +365,10 @@ export default function SendPage() {
                 {renderContactDropdown("replyTo")}
               </div>
             </div>
-            <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
-              <span className="text-muted text-sm w-20 font-medium">Priority</span>
+            <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
+              <span className="text-muted text-sm w-full sm:w-20 font-medium">Priority</span>
               <select 
-                className="bg-transparent outline-none text-sm text-fg py-1 disabled:opacity-50 cursor-pointer"
+                className="w-full bg-transparent outline-none text-sm text-fg py-1 disabled:opacity-50 cursor-pointer"
                 disabled={sendMutation.isPending}
                 {...register("priority")}
               >
@@ -423,7 +425,7 @@ export default function SendPage() {
 
         {/* Footer Actions */}
         <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 px-4 py-3 bg-surface-warm/30 border-t border-border-soft">
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <input 
               type="file" 
               multiple 
@@ -431,12 +433,12 @@ export default function SendPage() {
               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full disabled:cursor-not-allowed"
               onChange={handleFileChange}
             />
-            <Button type="button" variant="secondary" disabled={sendMutation.isPending}>
+            <Button type="button" variant="secondary" disabled={sendMutation.isPending} className="w-full sm:w-auto">
               <Paperclip className="h-4 w-4 mr-2" />
               Add Attachments
             </Button>
           </div>
-          <Button type="submit" disabled={sendMutation.isPending}>
+          <Button type="submit" disabled={sendMutation.isPending} className="w-full sm:w-auto">
             {sendMutation.isPending ? "Sending..." : "Send Email"}
           </Button>
         </div>

@@ -126,11 +126,11 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 pt-4 border-b border-border-soft pb-4">
-              <Button variant="secondary" onClick={() => toast.success("Connection test successful.")}>
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-4 border-b border-border-soft pb-4">
+              <Button variant="secondary" onClick={() => toast.success("Connection test successful.")} className="w-full sm:w-auto">
                 Test Connection
               </Button>
-              <Button variant="secondary" onClick={() => setExportState(prev => ({ ...prev, active: !prev.active }))}>
+              <Button variant="secondary" onClick={() => setExportState(prev => ({ ...prev, active: !prev.active }))} className="w-full sm:w-auto">
                 <Download className="h-4 w-4 mr-2" /> 
                 Export Config
               </Button>
@@ -196,7 +196,7 @@ export default function SettingsPage() {
                   <Label>From Email</Label>
                   <Input type="email" placeholder="admin@example.com" {...register("fromEmail")} />
                 </div>
-                <Button type="submit" variant="secondary" className="mt-2">
+                <Button type="submit" variant="secondary" className="mt-2 w-full sm:w-auto">
                   Update Identity
                 </Button>
               </form>
@@ -218,7 +218,7 @@ export default function SettingsPage() {
                   disabled={disconnectMutation.isPending}
                   className="flex-1"
                 >
-                  {disconnectMutation.isPending ? "Disconnecting..." : "Disconnect SMTP & Clear Data"}
+                  {disconnectMutation.isPending ? "Disconnecting..." : "Disconnect & Clear Data"}
                 </Button>
                 <Button 
                   variant="secondary" 

@@ -14,6 +14,7 @@ export default function ContactsPage() {
   const { contacts, saveContact, updateContact, deleteContact, importContacts } = useAppStore();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  const [isAdding, setIsAdding] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [tagsInput, setTagsInput] = React.useState<string>("");
   const [tags, setTags] = React.useState<string[]>([]);
@@ -46,6 +47,7 @@ export default function ContactsPage() {
       });
       toast.success("Contact updated successfully!");
       setEditingId(null);
+      setIsAdding(false);
     } else {
       saveContact({
         id: 'contact_' + Date.now(),
@@ -54,6 +56,7 @@ export default function ContactsPage() {
         tags
       });
       toast.success("Contact saved successfully!");
+      setIsAdding(false);
     }
     reset();
     setTags([]);
@@ -61,6 +64,7 @@ export default function ContactsPage() {
   };
 
   const handleEdit = (contact: any) => {
+    setIsAdding(true);
     setEditingId(contact.id);
     setValue("name", contact.name);
     setValue("email", contact.email);
@@ -70,6 +74,7 @@ export default function ContactsPage() {
 
   const cancelEdit = () => {
     setEditingId(null);
+    setIsAdding(false);
     reset();
     setTags([]);
     setTagsInput("");
@@ -176,25 +181,32 @@ export default function ContactsPage() {
     <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Contacts</h1>
-        <div className="flex flex-wrap gap-2">
-          <input 
-            type="file" 
-            accept=".json" 
-            ref={fileInputRef} 
-            className="hidden" 
-            onChange={handleImport} 
-          />
-          <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4 mr-2" />
-            Import
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full sm:w-auto">
+          <Button onClick={() => setIsAdding(true)} className="w-full sm:w-auto" disabled={isAdding}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Contact
           </Button>
-          <Button onClick={handleExportAll}>
-            <Download className="h-4 w-4 mr-2" />
-            Export All
-          </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <input 
+              type="file" 
+              accept=".json" 
+              ref={fileInputRef} 
+              className="hidden" 
+              onChange={handleImport} 
+            />
+            <Button variant="secondary" onClick={() => fileInputRef.current?.click()} className="flex-1 sm:flex-none">
+              <Upload className="h-4 w-4 mr-2" />
+              Import
+            </Button>
+            <Button variant="secondary" onClick={handleExportAll} className="flex-1 sm:flex-none">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </div>
         </div>
       </div>
 
+      {isAdding && (
       <Card className={editingId ? "border-accent/50 shadow-md transition-all" : ""}>
         <CardHeader>
           <CardTitle>
@@ -239,30 +251,29 @@ export default function ContactsPage() {
               )}
             </div>
 
-            <div className="flex gap-3">
-              <Button type="submit" className="flex-1 md:flex-none">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button type="submit" className="w-full sm:w-auto">
                 {editingId ? "Update Contact" : "Save Contact"}
               </Button>
-              {editingId && (
-                <Button type="button" variant="ghost" onClick={cancelEdit}>
-                  Cancel
-                </Button>
-              )}
+              <Button type="button" variant="ghost" onClick={cancelEdit} className="w-full sm:w-auto">
+                Cancel
+              </Button>
             </div>
           </form>
         </CardContent>
       </Card>
+      )}
 
       {/* Search and Sort Controls */}
       {contacts.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface border border-border p-3 rounded-lg shadow-sm">
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-surface border border-border p-3 rounded-lg shadow-sm w-full">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
             <Input 
               placeholder="Search contacts..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-9"
+              className="pl-9 h-9 w-full"
             />
             {searchQuery && (
               <button 
@@ -278,7 +289,7 @@ export default function ContactsPage() {
             <select 
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="h-9 w-full sm:w-auto rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              className="h-9 w-full sm:w-40 rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>

@@ -114,6 +114,14 @@ option {
   border-color: var(--border-soft) !important;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px;
+}
+.editor-container .ql-formats {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  margin-right: 8px !important;
 }
 .editor-container .ql-container {
   border-color: var(--border-soft) !important;

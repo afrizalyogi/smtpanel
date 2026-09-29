@@ -20,8 +20,8 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold tracking-tight mb-1">Overview</h1>
           <p className="text-muted">SMTP connection and sending statistics.</p>
         </div>
-        <Link href="/send">
-          <Button>Send Email</Button>
+        <Link href="/send" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto">Send Email</Button>
         </Link>
       </div>
 
