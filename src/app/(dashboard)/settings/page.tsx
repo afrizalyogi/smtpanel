@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/store";
@@ -149,18 +150,12 @@ export default function SettingsPage() {
                         onChange={(e) => setExportState(prev => ({ ...prev, pin: e.target.value }))}
                       />
                     </div>
-                    <div className="flex items-center gap-3">
-                      <input 
-                        type="checkbox" 
-                        id="includeData"
-                        checked={exportState.includeData}
-                        onChange={(e) => setExportState(prev => ({ ...prev, includeData: e.target.checked }))}
-                        className="w-4 h-4 rounded border-border bg-transparent accent-accent focus:ring-accent focus:ring-2 cursor-pointer shrink-0"
-                      />
-                      <label htmlFor="includeData" className="text-sm cursor-pointer text-muted font-normal select-none">
-                        Include App Data (Templates, Contacts, History)
-                      </label>
-                    </div>
+                    <Checkbox 
+                      id="includeData"
+                      checked={exportState.includeData}
+                      onChange={(e) => setExportState(prev => ({ ...prev, includeData: e.target.checked }))}
+                      label={<span className="font-normal text-muted">Include App Data (Templates, Contacts, History)</span>}
+                    />
                     <Button className="w-full" onClick={handleGenerateExport} disabled={exportState.loading}>
                       {exportState.loading ? "Encrypting..." : "Generate Token"}
                     </Button>

@@ -4,6 +4,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAppStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
@@ -339,17 +340,13 @@ export default function SendPage() {
                 <option value="low">Low</option>
               </select>
             </div>
-            <div className="flex items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
-              <span className="text-muted text-sm w-20 font-medium whitespace-nowrap">Read Receipt</span>
-              <div className="flex items-center flex-1">
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 rounded border-border bg-transparent accent-accent focus:ring-accent focus:ring-2 cursor-pointer disabled:opacity-50"
-                  disabled={sendMutation.isPending}
-                  {...register("readReceipt")}
-                />
-                <span className="ml-2 text-xs text-muted">Request a read receipt from the recipient</span>
-              </div>
+            <div className="px-4 py-3 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors">
+              <Checkbox 
+                label="Read Receipt"
+                description="Request a read receipt from the recipient"
+                disabled={sendMutation.isPending}
+                {...register("readReceipt")}
+              />
             </div>
           </>
         )}
