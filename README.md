@@ -70,7 +70,7 @@ Vercel limits request bodies to 4.5 MB, so attachments are capped at 4 MB in tot
 
 ### From source
 
-Requires Node.js 20.9+.
+Requires Node.js 26+.
 
 ```bash
 git clone https://github.com/afrizalyogi/smtpanel.git
