@@ -10,6 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { formatFrom, sendEmail } from "@/lib/utils";
+import DOMPurify from "dompurify";
 
 export default function EmailDetailPage() {
   const params = useParams();
@@ -94,7 +95,7 @@ export default function EmailDetailPage() {
           <div className="bg-surface-warm p-4 rounded-md text-sm">
             {email.body ? (
               email.html ? (
-                <div className="[&>p]:mb-4 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&_a]:text-accent hover:[&_a]:underline" dangerouslySetInnerHTML={{ __html: email.body }} />
+                <div className="[&>p]:mb-4 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&_a]:text-accent hover:[&_a]:underline" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(email.body) }} />
               ) : (
                 <div className="font-mono whitespace-pre-wrap">{email.body}</div>
               )
