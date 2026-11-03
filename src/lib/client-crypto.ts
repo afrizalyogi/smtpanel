@@ -62,7 +62,7 @@ export async function encryptWithPin(data: object, pin: string): Promise<string>
  * Decrypts a secure string token using the provided PIN.
  * Returns the original object data.
  */
-export async function decryptWithPin(token: string, pin: string): Promise<any> {
+export async function decryptWithPin(token: string, pin: string): Promise<Record<string, unknown>> {
   const raw = token.replace('smtpanel://', '');
   const parts = raw.split(':');
   if (parts.length !== 3) throw new Error('Invalid token format');

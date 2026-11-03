@@ -5,32 +5,22 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAppStore, TemplateRecord } from "@/store";
 import { toast } from "sonner";
-import { Download, Upload, X, AlertTriangle, FileText, Edit, Save, MoreHorizontal } from "lucide-react";
+import { X, FileText, Edit, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Editor } from "@/components/ui/editor";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CardMenu } from "@/components/CardMenu";
+import { ImportExportButtons } from "@/components/ImportExportButtons";
+import { downloadJson, importJsonArray } from "@/lib/utils";
 
 export default function TemplatesPage() {
-  const { templates, updateTemplate, deleteTemplate, importTemplates } = useAppStore();
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const { templates, saveTemplate, updateTemplate, deleteTemplate, importTemplates } = useAppStore();
   const router = useRouter();
 
   const [editingTemplate, setEditingTemplate] = React.useState<TemplateRecord | null>(null);
   const [isAddingNew, setIsAddingNew] = React.useState(false);
   const [editForm, setEditForm] = React.useState<{name: string; subject: string; body: string}>({ name: "", subject: "", body: "" });
-  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('.menu-trigger') && !target.closest('.menu-dropdown')) {
-        setOpenMenuId(null);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
 
   const handleAddClick = () => {
     setEditForm({ name: "", subject: "", body: "" });
@@ -42,31 +32,24 @@ export default function TemplatesPage() {
     setEditForm({ name: tpl.name, subject: tpl.subject, body: tpl.body });
   };
 
+  const closeEditor = () => {
+    setEditingTemplate(null);
+    setIsAddingNew(false);
+  };
+
   const saveEdit = () => {
     if (!editForm.name || !editForm.subject) {
       toast.error("Name and Subject are required.");
       return;
     }
     if (isAddingNew) {
-      const { saveTemplate } = useAppStore.getState();
-      saveTemplate({
-        id: 'tpl_' + Date.now(),
-        name: editForm.name,
-        subject: editForm.subject,
-        body: editForm.body,
-        html: true,
-      });
+      saveTemplate({ id: 'tpl_' + Date.now(), ...editForm, html: true });
       toast.success("Template added successfully.");
     } else if (editingTemplate) {
-      updateTemplate(editingTemplate.id, {
-        name: editForm.name,
-        subject: editForm.subject,
-        body: editForm.body
-      });
+      updateTemplate(editingTemplate.id, editForm);
       toast.success("Template updated successfully.");
     }
-    setEditingTemplate(null);
-    setIsAddingNew(false);
+    closeEditor();
   };
 
   const handleExport = () => {
@@ -74,70 +57,30 @@ export default function TemplatesPage() {
       toast.error("No templates to export.");
       return;
     }
-    const dataStr = JSON.stringify(templates, null, 2);
-    const blob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `smtpanel-templates-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
+    downloadJson(templates, `smtpanel-templates-${new Date().toISOString().split('T')[0]}.json`);
     toast.success("Templates exported successfully.");
   };
 
   const handleExportSingle = (tpl: TemplateRecord) => {
-    const dataStr = JSON.stringify([tpl], null, 2);
-    const blob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    const safeName = tpl.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    link.download = `smtpanel-template-${safeName}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    downloadJson([tpl], `smtpanel-template-${tpl.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`);
     toast.success(`Template "${tpl.name}" exported.`);
   };
 
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const json = JSON.parse(event.target?.result as string);
-        if (Array.isArray(json)) {
-          // Basic validation
-          const validTemplates = json.filter(t => t.id && t.name && t.subject);
-          importTemplates(validTemplates);
-          toast.success(`Imported ${validTemplates.length} templates successfully.`);
-        } else {
-          toast.error("Invalid template file format.");
-        }
-      } catch (err) {
-        toast.error("Failed to parse JSON file.");
-      }
-    };
-    reader.readAsText(file);
-    
-    // reset input
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) =>
+    importJsonArray(event, "template", (items) => {
+      const validTemplates = (items as TemplateRecord[]).filter(t => t.id && t.name && t.subject);
+      importTemplates(validTemplates);
+      toast.success(`Imported ${validTemplates.length} templates successfully.`);
+    });
 
   return (
     <div className="space-y-6 animate-fade-in max-w-5xl mx-auto relative">
       {(editingTemplate || isAddingNew) && (
-        <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => { setEditingTemplate(null); setIsAddingNew(false); }}>
+        <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={closeEditor}>
           <div className="bg-surface border border-border w-full max-w-3xl rounded-lg shadow-xl flex flex-col max-h-[90vh] overflow-hidden animate-slide-down" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center p-4 border-b border-border-soft">
               <h3 className="font-semibold text-lg flex items-center gap-2"><Edit className="h-5 w-5 text-accent" /> {isAddingNew ? "Add New Template" : "Edit Template"}</h3>
-              <button onClick={() => { setEditingTemplate(null); setIsAddingNew(false); }} className="text-muted hover:text-fg"><X className="h-5 w-5" /></button>
+              <button onClick={closeEditor} className="text-muted hover:text-fg"><X className="h-5 w-5" /></button>
             </div>
             <div className="p-4 space-y-4 flex-1 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -158,7 +101,7 @@ export default function TemplatesPage() {
               </div>
             </div>
             <div className="p-4 border-t border-border-soft flex flex-col sm:flex-row justify-end gap-3 bg-surface-warm/30">
-              <Button variant="secondary" onClick={() => { setEditingTemplate(null); setIsAddingNew(false); }} className="w-full sm:w-auto">Cancel</Button>
+              <Button variant="secondary" onClick={closeEditor} className="w-full sm:w-auto">Cancel</Button>
               <Button onClick={saveEdit} className="w-full sm:w-auto"><Save className="h-4 w-4 mr-2" /> Save Changes</Button>
             </div>
           </div>
@@ -172,33 +115,15 @@ export default function TemplatesPage() {
             <Edit className="h-4 w-4 mr-2" />
             Add Template
           </Button>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <input 
-              type="file" 
-              accept=".json" 
-              className="hidden" 
-              ref={fileInputRef} 
-              onChange={handleImport} 
-            />
-            <Button variant="secondary" onClick={() => fileInputRef.current?.click()} className="flex-1 sm:flex-none">
-              <Upload className="h-4 w-4 mr-2" />
-              Import
-            </Button>
-            <Button variant="secondary" onClick={handleExport} className="flex-1 sm:flex-none">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </div>
+          <ImportExportButtons onImport={handleImport} onExport={handleExport} />
         </div>
       </div>
-
-      
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {templates.length === 0 ? (
           <div className="col-span-full py-12 text-center border border-dashed border-border-soft rounded-lg">
             <FileText className="h-8 w-8 text-muted mx-auto mb-3" />
-            <p className="text-muted text-sm">You haven't saved any templates yet.</p>
+            <p className="text-muted text-sm">You haven&apos;t saved any templates yet.</p>
             <Button variant="secondary" className="mt-4" onClick={() => router.push("/send")}>
               Go to Compose
             </Button>
@@ -211,39 +136,11 @@ export default function TemplatesPage() {
                   <CardTitle className="text-base truncate max-w-[180px]" title={tpl.name}>{tpl.name}</CardTitle>
                   <p className="text-sm text-muted mt-1 truncate max-w-[180px]">{tpl.subject}</p>
                 </div>
-                <div className="relative">
-                  <button 
-                    type="button"
-                    onClick={() => setOpenMenuId(openMenuId === tpl.id ? null : tpl.id)}
-                    className="menu-trigger text-muted hover:text-fg p-1 rounded-md transition-colors focus:outline-none"
-                  >
-                    <MoreHorizontal className="h-4 w-4 pointer-events-none" />
-                  </button>
-                  
-                  {openMenuId === tpl.id && (
-                    <div className="menu-dropdown absolute right-0 top-full mt-1 w-36 bg-surface border border-border rounded-md shadow-lg z-50 py-1 animate-fade-in">
-                      <button 
-                        onClick={() => { handleEditClick(tpl); setOpenMenuId(null); }}
-                        className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"
-                      >
-                        <Edit className="h-3.5 w-3.5 text-muted" /> Edit
-                      </button>
-                      <button 
-                        onClick={() => { handleExportSingle(tpl); setOpenMenuId(null); }}
-                        className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"
-                      >
-                        <Download className="h-3.5 w-3.5 text-muted" /> Export
-                      </button>
-                      <div className="h-px bg-border-soft my-1"></div>
-                      <button 
-                        onClick={() => { deleteTemplate(tpl.id); setOpenMenuId(null); }}
-                        className="w-full text-left px-3 py-2 text-sm text-danger hover:bg-danger/10 flex items-center gap-2"
-                      >
-                        <X className="h-3.5 w-3.5" /> Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <CardMenu
+                  onEdit={() => handleEditClick(tpl)}
+                  onExport={() => handleExportSingle(tpl)}
+                  onDelete={() => deleteTemplate(tpl.id)}
+                />
               </CardHeader>
               <CardContent className="p-4 flex-1">
                 <div className="text-xs text-muted line-clamp-3 font-mono bg-surface-warm p-2 rounded-md h-16 opacity-70">

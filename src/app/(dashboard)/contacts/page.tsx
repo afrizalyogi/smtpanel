@@ -2,75 +2,31 @@
 
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAppStore } from "@/store";
+import { CardMenu } from "@/components/CardMenu";
+import { ImportExportButtons } from "@/components/ImportExportButtons";
+import { useAppStore, type ContactRecord } from "@/store";
+import { downloadJson, importJsonArray } from "@/lib/utils";
 import { toast } from "sonner";
-import { Users, Upload, Download, X, Edit, Plus, MoreHorizontal, Search, ArrowUpDown, ChevronDown } from "lucide-react";
+import { Users, X, Edit, Plus, Search, ArrowUpDown, ChevronDown } from "lucide-react";
 
 export default function ContactsPage() {
   const { contacts, saveContact, updateContact, deleteContact, importContacts } = useAppStore();
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [isAdding, setIsAdding] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [tagsInput, setTagsInput] = React.useState<string>("");
   const [tags, setTags] = React.useState<string[]>([]);
-  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null);
   
   const [searchQuery, setSearchQuery] = React.useState("");
   const [sortBy, setSortBy] = React.useState<"newest" | "oldest" | "name-asc" | "name-desc">("newest");
 
-  React.useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('.menu-trigger') && !target.closest('.menu-dropdown')) {
-        setOpenMenuId(null);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
-
   const { register, handleSubmit, reset, setValue } = useForm({
     defaultValues: { name: "", email: "" },
   });
-
-  const onSubmit = (data: any) => {
-    if (editingId) {
-      updateContact(editingId, {
-        name: data.name,
-        email: data.email,
-        tags
-      });
-      toast.success("Contact updated successfully!");
-      setEditingId(null);
-      setIsAdding(false);
-    } else {
-      saveContact({
-        id: 'contact_' + Date.now(),
-        name: data.name,
-        email: data.email,
-        tags
-      });
-      toast.success("Contact saved successfully!");
-      setIsAdding(false);
-    }
-    reset();
-    setTags([]);
-    setTagsInput("");
-  };
-
-  const handleEdit = (contact: any) => {
-    setIsAdding(true);
-    setEditingId(contact.id);
-    setValue("name", contact.name);
-    setValue("email", contact.email);
-    setTags(contact.tags || []);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const cancelEdit = () => {
     setEditingId(null);
@@ -78,6 +34,26 @@ export default function ContactsPage() {
     reset();
     setTags([]);
     setTagsInput("");
+  };
+
+  const onSubmit = (data: { name: string; email: string }) => {
+    if (editingId) {
+      updateContact(editingId, { ...data, tags });
+      toast.success("Contact updated successfully!");
+    } else {
+      saveContact({ id: 'contact_' + Date.now(), ...data, tags });
+      toast.success("Contact saved successfully!");
+    }
+    cancelEdit();
+  };
+
+  const handleEdit = (contact: ContactRecord) => {
+    setIsAdding(true);
+    setEditingId(contact.id);
+    setValue("name", contact.name);
+    setValue("email", contact.email);
+    setTags(contact.tags || []);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const addTag = () => {
@@ -99,15 +75,8 @@ export default function ContactsPage() {
     setTags(tags.filter(t => t !== tagToRemove));
   };
 
-  const handleExportSingle = (contact: any) => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify([contact], null, 2));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", `contact_${contact.name.replace(/\s+/g, '_')}.json`);
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-  };
+  const handleExportSingle = (contact: ContactRecord) =>
+    downloadJson([contact], `contact_${contact.name.replace(/\s+/g, '_')}.json`);
 
   const filteredAndSortedContacts = React.useMemo(() => {
     let result = [...contacts];
@@ -143,39 +112,15 @@ export default function ContactsPage() {
       toast.error("No contacts to export.");
       return;
     }
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(contacts, null, 2));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "smtpanel_contacts.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    downloadJson(contacts, "smtpanel_contacts.json");
     toast.success("All contacts exported.");
   };
 
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const parsed = JSON.parse(content);
-        if (Array.isArray(parsed)) {
-          importContacts(parsed);
-          toast.success(`Imported ${parsed.length} contacts.`);
-        } else {
-          toast.error("Invalid contacts file format.");
-        }
-      } catch (err) {
-        toast.error("Failed to parse contacts file.");
-      }
-    };
-    reader.readAsText(file);
-    
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) =>
+    importJsonArray(event, "contacts", (items) => {
+      importContacts(items as ContactRecord[]);
+      toast.success(`Imported ${items.length} contacts.`);
+    });
 
   return (
     <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
@@ -186,23 +131,7 @@ export default function ContactsPage() {
             <Plus className="h-4 w-4 mr-2" />
             Add Contact
           </Button>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <input 
-              type="file" 
-              accept=".json" 
-              ref={fileInputRef} 
-              className="hidden" 
-              onChange={handleImport} 
-            />
-            <Button variant="secondary" onClick={() => fileInputRef.current?.click()} className="flex-1 sm:flex-none">
-              <Upload className="h-4 w-4 mr-2" />
-              Import
-            </Button>
-            <Button variant="secondary" onClick={handleExportAll} className="flex-1 sm:flex-none">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </div>
+          <ImportExportButtons onImport={handleImport} onExport={handleExportAll} />
         </div>
       </div>
 
@@ -297,7 +226,7 @@ export default function ContactsPage() {
             <div className="relative w-full sm:w-40">
               <select 
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="appearance-none h-9 w-full rounded-md border border-border bg-transparent pl-3 pr-8 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
               >
                 <option value="newest">Newest First</option>
@@ -315,7 +244,7 @@ export default function ContactsPage() {
         {contacts.length === 0 ? (
           <div className="col-span-full py-12 text-center border border-dashed border-border-soft rounded-lg">
             <Users className="h-8 w-8 text-muted mx-auto mb-3" />
-            <p className="text-muted text-sm">You haven't saved any contacts yet.</p>
+            <p className="text-muted text-sm">You haven&apos;t saved any contacts yet.</p>
           </div>
         ) : filteredAndSortedContacts.length === 0 ? (
           <div className="col-span-full py-12 text-center border border-dashed border-border-soft rounded-lg">
@@ -334,39 +263,11 @@ export default function ContactsPage() {
                     <h3 className="font-semibold text-fg text-base truncate max-w-[180px]" title={contact.name}>{contact.name}</h3>
                     <p className="text-sm text-muted mt-1 truncate max-w-[180px]" title={contact.email}>{contact.email}</p>
                   </div>
-                  <div className="relative">
-                    <button 
-                      type="button"
-                      onClick={() => setOpenMenuId(openMenuId === contact.id ? null : contact.id)}
-                      className="menu-trigger text-muted hover:text-fg p-1 rounded-md transition-colors focus:outline-none"
-                    >
-                      <MoreHorizontal className="h-4 w-4 pointer-events-none" />
-                    </button>
-                    
-                    {openMenuId === contact.id && (
-                      <div className="menu-dropdown absolute right-0 top-full mt-1 w-36 bg-surface border border-border rounded-md shadow-lg z-50 py-1 animate-fade-in">
-                        <button 
-                          onClick={() => { handleEdit(contact); setOpenMenuId(null); }}
-                          className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"
-                        >
-                          <Edit className="h-3.5 w-3.5 text-muted" /> Edit
-                        </button>
-                        <button 
-                          onClick={() => { handleExportSingle(contact); setOpenMenuId(null); }}
-                          className="w-full text-left px-3 py-2 text-sm text-fg hover:bg-surface-warm flex items-center gap-2"
-                        >
-                          <Download className="h-3.5 w-3.5 text-muted" /> Export
-                        </button>
-                        <div className="h-px bg-border-soft my-1"></div>
-                        <button 
-                          onClick={() => { deleteContact(contact.id); setOpenMenuId(null); }}
-                          className="w-full text-left px-3 py-2 text-sm text-danger hover:bg-danger/10 flex items-center gap-2"
-                        >
-                          <X className="h-3.5 w-3.5" /> Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <CardMenu
+                    onEdit={() => handleEdit(contact)}
+                    onExport={() => handleExportSingle(contact)}
+                    onDelete={() => deleteContact(contact.id)}
+                  />
                 </div>
 
                 {contact.tags && contact.tags.length > 0 && (

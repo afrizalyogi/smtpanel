@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAppStore } from "@/store";
+import { useAppStore, type AppState } from "@/store";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -18,13 +18,8 @@ export default function SettingsPage() {
   const { identity, setIdentity, clearData, wipeLocalData, templates, emails, contacts } = useAppStore();
   const router = useRouter();
   
-  const [exportState, setExportState] = React.useState<{ 
-    active: boolean; 
-    pin: string; 
-    token: string; 
-    loading: boolean;
-    includeData: boolean;
-  }>({ active: false, pin: '', token: '', loading: false, includeData: false });
+  const initialExport = { active: false, pin: '', token: '', loading: false, includeData: false };
+  const [exportState, setExportState] = React.useState(initialExport);
 
   const { register, handleSubmit } = useForm({
     defaultValues: {
@@ -33,7 +28,7 @@ export default function SettingsPage() {
     }
   });
 
-  const onUpdateIdentity = (data: any) => {
+  const onUpdateIdentity = (data: AppState["identity"]) => {
     setIdentity(data.fromName, data.fromEmail);
     toast.success("Sender identity updated.");
   };
@@ -70,27 +65,19 @@ export default function SettingsPage() {
       }
 
       // 2. Merge with identity and optional app data
-      const payload: any = {
+      const payload = {
         ...json.data,
-        fromName: identity.fromName,
-        fromEmail: identity.fromEmail
+        ...identity,
+        ...(exportState.includeData && { _appData: { templates, emails, contacts } }),
       };
-
-      if (exportState.includeData) {
-        payload._appData = {
-          templates,
-          emails,
-          contacts
-        };
-      }
 
       // 3. Encrypt locally
       const token = await encryptWithPin(payload, exportState.pin);
       
       setExportState(prev => ({ ...prev, token, loading: false }));
       toast.success("Secure token generated!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to generate token.");
+    } catch (err) {
+      toast.error((err as Error).message || "Failed to generate token.");
       setExportState(prev => ({ ...prev, loading: false }));
     }
   };
@@ -98,7 +85,7 @@ export default function SettingsPage() {
   const copyToken = () => {
     navigator.clipboard.writeText(exportState.token);
     toast.success("Token copied to clipboard!");
-    setExportState({ active: false, pin: '', token: '', loading: false, includeData: false }); // close after copy
+    setExportState(initialExport); // close after copy
   };
 
   return (
@@ -209,7 +196,7 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted text-sm">
-                Disconnecting will remove your securely stored SMTP credentials from the server's session cookie and <strong>clear your local browser history and templates</strong>. You can also choose to wipe local data without disconnecting.
+                Disconnecting will remove your securely stored SMTP credentials from the server&apos;s session cookie and <strong>clear your local browser history and templates</strong>. You can also choose to wipe local data without disconnecting.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button 

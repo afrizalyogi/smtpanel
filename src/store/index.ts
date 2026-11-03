@@ -27,13 +27,13 @@ export type ContactRecord = {
   tags?: string[];
 };
 
-interface AppState {
+export interface AppState {
   isConnected: boolean;
   setConnected: (connected: boolean) => void;
   hasSeenWarning: boolean;
   dismissWarning: () => void;
   emails: EmailRecord[];
-  addEmail: (email: EmailRecord) => void;
+  addEmail: (email: Omit<EmailRecord, 'id' | 'date'>) => void;
   importHistory: (emails: EmailRecord[]) => void;
   templates: TemplateRecord[];
   saveTemplate: (template: TemplateRecord) => void;
@@ -45,110 +45,78 @@ interface AppState {
   updateContact: (id: string, contact: Partial<ContactRecord>) => void;
   deleteContact: (id: string) => void;
   importContacts: (contacts: ContactRecord[]) => void;
-  stats: {
-    total: number;
-    success: number;
-    failed: number;
-  };
-  identity: {
-    fromName: string;
-    fromEmail: string;
-  };
+  stats: { total: number; success: number; failed: number };
+  identity: { fromName: string; fromEmail: string };
   setIdentity: (name: string, email: string) => void;
   clearData: () => void;
   wipeLocalData: () => void;
 }
+
+type WithId = { id: string };
+
+/** Items from `incoming` whose id is not already in `existing`. */
+const newOnly = <T extends WithId>(existing: T[], incoming: T[]) => {
+  const ids = new Set(existing.map((item) => item.id));
+  return incoming.filter((item) => !ids.has(item.id));
+};
+
+const patchById = <T extends WithId>(list: T[], id: string, patch: Partial<T>) =>
+  list.map((item) => (item.id === id ? { ...item, ...patch } : item));
+
+const addToStats = (stats: AppState['stats'], emails: EmailRecord[]) => {
+  const success = emails.filter((e) => e.status === 'Sent').length;
+  return {
+    total: stats.total + emails.length,
+    success: stats.success + success,
+    failed: stats.failed + emails.length - success,
+  };
+};
+
+const emptyData = {
+  emails: [],
+  templates: [],
+  contacts: [],
+  stats: { total: 0, success: 0, failed: 0 },
+};
 
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       isConnected: false,
       hasSeenWarning: false,
-      setConnected: (connected) => set({ isConnected: connected }),
+      setConnected: (isConnected) => set({ isConnected }),
       dismissWarning: () => set({ hasSeenWarning: true }),
-      emails: [],
+      ...emptyData,
+      identity: { fromName: '', fromEmail: '' },
+
       addEmail: (email) =>
         set((state) => {
-          const isSuccess = email.status === 'Sent';
-          return {
-            emails: [email, ...state.emails],
-            stats: {
-              total: state.stats.total + 1,
-              success: state.stats.success + (isSuccess ? 1 : 0),
-              failed: state.stats.failed + (isSuccess ? 0 : 1),
-            },
-          };
+          const record = { ...email, id: 'msg_' + Date.now(), date: new Date().toLocaleString() };
+          return { emails: [record, ...state.emails], stats: addToStats(state.stats, [record]) };
         }),
-      importHistory: (newEmails) => set((state) => {
-        const existingIds = new Set(state.emails.map(e => e.id));
-        const filtered = newEmails.filter(e => !existingIds.has(e.id));
-        
-        let addedTotal = 0;
-        let addedSuccess = 0;
-        let addedFailed = 0;
-        
-        filtered.forEach(e => {
-          addedTotal++;
-          if (e.status === 'Sent') addedSuccess++;
-          else addedFailed++;
-        });
+      importHistory: (emails) =>
+        set((state) => {
+          const added = newOnly(state.emails, emails);
+          return { emails: [...added, ...state.emails], stats: addToStats(state.stats, added) };
+        }),
 
-        return { 
-          emails: [...filtered, ...state.emails],
-          stats: {
-            total: state.stats.total + addedTotal,
-            success: state.stats.success + addedSuccess,
-            failed: state.stats.failed + addedFailed
-          }
-        };
-      }),
-      templates: [],
       saveTemplate: (template) => set((state) => ({ templates: [...state.templates, template] })),
-      updateTemplate: (id, templateUpdate) => set((state) => ({
-        templates: state.templates.map(t => t.id === id ? { ...t, ...templateUpdate } : t)
-      })),
-      deleteTemplate: (id) => set((state) => ({ templates: state.templates.filter(t => t.id !== id) })),
-      importTemplates: (newTemplates) => set((state) => {
-        // Prevent duplicates by ID
-        const existingIds = new Set(state.templates.map(t => t.id));
-        const filtered = newTemplates.filter(t => !existingIds.has(t.id));
-        return { templates: [...state.templates, ...filtered] };
-      }),
-      contacts: [],
+      updateTemplate: (id, patch) => set((state) => ({ templates: patchById(state.templates, id, patch) })),
+      deleteTemplate: (id) => set((state) => ({ templates: state.templates.filter((t) => t.id !== id) })),
+      importTemplates: (templates) =>
+        set((state) => ({ templates: [...state.templates, ...newOnly(state.templates, templates)] })),
+
       saveContact: (contact) => set((state) => ({ contacts: [...state.contacts, contact] })),
-      updateContact: (id, contactUpdate) => set((state) => ({
-        contacts: state.contacts.map(c => c.id === id ? { ...c, ...contactUpdate } : c)
-      })),
-      deleteContact: (id) => set((state) => ({ contacts: state.contacts.filter(c => c.id !== id) })),
-      importContacts: (newContacts) => set((state) => {
-        const existingIds = new Set(state.contacts.map(c => c.id));
-        const filtered = newContacts.filter(c => !existingIds.has(c.id));
-        return { contacts: [...state.contacts, ...filtered] };
-      }),
-      stats: { total: 0, success: 0, failed: 0 },
-      identity: { fromName: '', fromEmail: '' },
-      setIdentity: (fromName, fromEmail) =>
-        set({ identity: { fromName, fromEmail } }),
+      updateContact: (id, patch) => set((state) => ({ contacts: patchById(state.contacts, id, patch) })),
+      deleteContact: (id) => set((state) => ({ contacts: state.contacts.filter((c) => c.id !== id) })),
+      importContacts: (contacts) =>
+        set((state) => ({ contacts: [...state.contacts, ...newOnly(state.contacts, contacts)] })),
+
+      setIdentity: (fromName, fromEmail) => set({ identity: { fromName, fromEmail } }),
       clearData: () =>
-        set({
-          isConnected: false,
-          hasSeenWarning: false,
-          emails: [],
-          templates: [],
-          contacts: [],
-          stats: { total: 0, success: 0, failed: 0 },
-          identity: { fromName: '', fromEmail: '' },
-        }),
-      wipeLocalData: () =>
-        set({
-          emails: [],
-          templates: [],
-          contacts: [],
-          stats: { total: 0, success: 0, failed: 0 },
-        }),
+        set({ ...emptyData, isConnected: false, hasSeenWarning: false, identity: { fromName: '', fromEmail: '' } }),
+      wipeLocalData: () => set(emptyData),
     }),
-    {
-      name: 'smtpanel-storage',
-    }
+    { name: 'smtpanel-storage' }
   )
 );

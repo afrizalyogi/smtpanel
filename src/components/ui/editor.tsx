@@ -1,10 +1,9 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import React from 'react';
 import 'react-quill-new/dist/quill.snow.css';
 
-const ReactQuill = dynamic<any>(() => import('react-quill-new'), { 
+const ReactQuill = dynamic(() => import('react-quill-new'), {
   ssr: false,
   loading: () => <div className="h-[300px] w-full flex items-center justify-center text-muted text-sm">Loading Editor...</div>
 });

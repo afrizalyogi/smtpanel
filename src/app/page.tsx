@@ -2,35 +2,37 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Key, Upload, X, Sun, Moon, ChevronDown } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { Mail, Key, Upload, X, ChevronDown } from "lucide-react";
+import { ThemeToggle, GitHubLink } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { useAppStore } from "@/store";
+import { useAppStore, type AppState } from "@/store";
 import { useMutation } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
 import { decryptWithPin } from "@/lib/client-crypto";
+import { useMounted } from "@/hooks/use-mounted";
+
+const defaultValues = {
+  host: "smtp.gmail.com",
+  port: "587",
+  encryption: "STARTTLS",
+  username: "",
+  password: "",
+  fromName: "",
+  fromEmail: "",
+};
+type ConnectForm = typeof defaultValues;
 
 export default function ConnectPage() {
   const router = useRouter();
   const { isConnected, setConnected, setIdentity, importTemplates, importContacts, importHistory } = useAppStore();
 
-  const { register, handleSubmit, control, setValue, getValues } = useForm({
-    defaultValues: {
-      host: "smtp.gmail.com",
-      port: "587",
-      encryption: "STARTTLS",
-      username: "",
-      password: "",
-      fromName: "",
-      fromEmail: "",
-    }
-  });
+  const { register, handleSubmit, control, setValue } = useForm({ defaultValues });
 
-  const [mounted, setMounted] = React.useState(false);
+  const mounted = useMounted();
   const [tokenModal, setTokenModal] = React.useState<{ isOpen: boolean; token: string; pin: string; loading: boolean }>({ isOpen: false, token: '', pin: '', loading: false });
 
   const portValue = useWatch({ control, name: "port" });
@@ -45,14 +47,11 @@ export default function ConnectPage() {
   }, [portValue, setValue, encryptionValue]);
 
   React.useEffect(() => {
-    setMounted(true);
-    if (isConnected) {
-      router.push("/dashboard");
-    }
+    if (isConnected) router.push("/dashboard");
   }, [isConnected, router]);
 
   const connectMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: ConnectForm) => {
       const res = await fetch('/api/smtp/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -75,13 +74,8 @@ export default function ConnectPage() {
     }
   });
 
-  const onSubmit = (data: any) => {
-    connectMutation.mutate(data);
-  };
-
-  const handleOpenImport = () => {
-    setTokenModal({ isOpen: true, token: '', pin: '', loading: false });
-  };
+  const closedModal = { isOpen: false, token: '', pin: '', loading: false };
+  const closeModal = () => setTokenModal(prev => ({ ...prev, isOpen: false }));
 
   const handleProcessImport = async () => {
     if (!tokenModal.token || !tokenModal.pin) {
@@ -92,28 +86,20 @@ export default function ConnectPage() {
     try {
       const data = await decryptWithPin(tokenModal.token, tokenModal.pin);
       
-      // Handle App Data if present
-      if (data._appData) {
-        if (data._appData.templates) importTemplates(data._appData.templates);
-        if (data._appData.contacts) importContacts(data._appData.contacts);
-        if (data._appData.emails) importHistory(data._appData.emails);
-        delete data._appData; // Remove before setting form values
-      }
+      const appData = data._appData as Partial<Pick<AppState, "templates" | "contacts" | "emails">> | undefined;
+      if (appData?.templates) importTemplates(appData.templates);
+      if (appData?.contacts) importContacts(appData.contacts);
+      if (appData?.emails) importHistory(appData.emails);
 
       Object.entries(data).forEach(([key, value]) => {
-        setValue(key as any, value);
+        if (key in defaultValues) setValue(key as keyof ConnectForm, String(value ?? ""));
       });
       toast.success("Settings and data imported successfully!");
-      setTokenModal({ isOpen: false, token: '', pin: '', loading: false });
-    } catch (err: any) {
+      setTokenModal(closedModal);
+    } catch {
       toast.error("Invalid token or incorrect PIN.");
       setTokenModal(prev => ({ ...prev, loading: false }));
     }
-  };
-
-  const copyToken = () => {
-    navigator.clipboard.writeText(tokenModal.token);
-    toast.success("Token copied to clipboard!");
   };
 
   if (!mounted || isConnected) return null;
@@ -126,14 +112,14 @@ export default function ConnectPage() {
         
         {/* TOKEN MODAL OVERLAY */}
         {tokenModal.isOpen && (
-          <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setTokenModal(prev => ({ ...prev, isOpen: false }))}>
+          <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={closeModal}>
             <div className="bg-surface border border-border w-full max-w-md rounded-lg shadow-xl flex flex-col p-6 max-h-[90vh] animate-slide-down" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-lg flex items-center gap-2">
                 <Key className="h-5 w-5 text-accent" />
                 Import Settings
               </h3>
-              <button onClick={() => setTokenModal(prev => ({ ...prev, isOpen: false }))} className="text-muted hover:text-fg"><X className="h-5 w-5" /></button>
+              <button onClick={closeModal} className="text-muted hover:text-fg"><X className="h-5 w-5" /></button>
             </div>
             
             <div className="space-y-4 flex-1 overflow-y-auto">
@@ -163,7 +149,7 @@ export default function ConnectPage() {
             </div>
 
             <div className="mt-4 pt-4 border-t border-border-soft flex gap-2">
-              <Button variant="secondary" className="flex-1" onClick={() => setTokenModal(prev => ({ ...prev, isOpen: false }))}>Cancel</Button>
+              <Button variant="secondary" className="flex-1" onClick={closeModal}>Cancel</Button>
               <Button className="flex-1" onClick={handleProcessImport} disabled={tokenModal.loading}>
                 {tokenModal.loading ? "Decrypting..." : "Import"}
               </Button>
@@ -182,7 +168,7 @@ export default function ConnectPage() {
           </p>
         </div>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit((data) => connectMutation.mutate(data))} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="host">SMTP Host</Label>
@@ -241,7 +227,7 @@ export default function ConnectPage() {
             <div className="flex flex-wrap gap-2 justify-center items-center mt-2">
               <button 
                 type="button" 
-                onClick={handleOpenImport}
+                onClick={() => setTokenModal({ ...closedModal, isOpen: true })}
                 className="flex items-center gap-1.5 px-3 h-7 rounded-md border border-border bg-transparent hover:bg-surface-warm text-xs font-medium text-muted hover:text-fg transition-colors"
               >
                 <Upload className="h-3.5 w-3.5" /> Import Settings
@@ -249,15 +235,7 @@ export default function ConnectPage() {
               
               <ThemeToggle />
 
-              <a 
-                href="https://github.com/afrizalyogi/smtpanel"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center h-7 w-7 rounded-md border border-border bg-transparent hover:bg-surface-warm text-muted hover:text-fg transition-colors"
-                title="View Source on GitHub"
-              >
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 9 18.13V22"></path></svg>
-              </a>
+              <GitHubLink />
             </div>
           </form>
         </CardContent>

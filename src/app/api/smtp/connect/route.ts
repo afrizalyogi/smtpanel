@@ -1,41 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
-import { encrypt } from '@/lib/crypto';
 import { cookies } from 'next/headers';
+import { encrypt } from '@/lib/crypto';
+import { createTransport } from '@/lib/smtp';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { host, port, encryption, username, password } = body;
+    const { host, port, encryption, username, password } = await request.json();
 
     if (!host || !port || !username || !password) {
       return NextResponse.json({ error: 'Missing required SMTP connection parameters.' }, { status: 400 });
     }
 
-    const secure = encryption === 'TLS';
-    const requireTLS = encryption === 'STARTTLS';
+    const config = { host, port, encryption, username, password };
+    await createTransport(config).verify();
 
-    const transporter = nodemailer.createTransport({
-      host,
-      port: Number(port),
-      secure,
-      requireTLS,
-      auth: {
-        user: username,
-        pass: password,
-      },
-    });
-
-    // Verify connection
-    await transporter.verify();
-
-    // Connection successful, encrypt credentials
-    const payload = { host, port, encryption, username, password };
-    const encryptedCredentials = encrypt(payload);
-
-    // Set secure HttpOnly cookie
-    const cookieStore = await cookies();
-    cookieStore.set('smtp_creds', encryptedCredentials, {
+    (await cookies()).set('smtp_creds', encrypt(config), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -44,11 +23,10 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true, message: 'SMTP connection verified.' });
-
-  } catch (error: any) {
+  } catch (error) {
     console.error('SMTP Connection Error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to connect to SMTP server.' },
+      { error: (error as Error).message || 'Failed to connect to SMTP server.' },
       { status: 401 }
     );
   }

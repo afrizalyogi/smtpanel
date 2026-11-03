@@ -3,22 +3,16 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAppStore } from "@/store";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useMounted } from "@/hooks/use-mounted";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const isConnected = useAppStore((state) => state.isConnected);
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
 
   useEffect(() => {
-    setMounted(true);
-    if (mounted && !isConnected) {
-      router.push("/");
-    }
+    if (mounted && !isConnected) router.push("/");
   }, [isConnected, router, mounted]);
 
   if (!mounted || !isConnected) return null; // Avoid flicker before redirect

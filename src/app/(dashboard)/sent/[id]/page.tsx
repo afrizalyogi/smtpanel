@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
+import { formatFrom, sendEmail } from "@/lib/utils";
 
 export default function EmailDetailPage() {
   const params = useParams();
@@ -18,60 +19,23 @@ export default function EmailDetailPage() {
   const emailId = params.id as string;
   const email = emails.find((e) => e.id === emailId);
 
-  const fromDisplay = identity.fromName && identity.fromEmail 
-    ? `${identity.fromName} <${identity.fromEmail}>`
-    : identity.fromEmail || "";
+  const fromDisplay = formatFrom(identity);
 
   const resendMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: () => {
       if (!email) throw new Error("Email not found");
-      
-      const formData = new FormData();
-      formData.append("to", email.to);
-      formData.append("subject", email.subject);
-      if (fromDisplay) formData.append("fromDisplay", fromDisplay);
-      
-      if (email.html) {
-        formData.append("html", email.body || "");
-      } else {
-        formData.append("text", email.body || "");
-      }
-
-      const res = await fetch('/api/emails/send', {
-        method: 'POST',
-        body: formData
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Failed to resend email');
-      return { msgId: json.messageId || '<unknown>' };
+      const body = email.body || "";
+      return sendEmail({ to: email.to, subject: email.subject, fromDisplay, ...(email.html ? { html: body } : { text: body }) });
     },
-    onSuccess: ({ msgId }) => {
+    onSuccess: (msgId) => {
       if (!email) return;
-      addEmail({
-        id: 'msg_' + Date.now(),
-        to: email.to,
-        subject: email.subject,
-        status: 'Sent',
-        date: new Date().toLocaleString(),
-        msgId,
-        body: email.body,
-        html: email.html,
-      });
+      addEmail({ to: email.to, subject: email.subject, status: 'Sent', msgId, body: email.body, html: email.html });
       toast.success("Email resent successfully.");
       router.push("/sent");
     },
     onError: (error: Error) => {
       if (!email) return;
-      addEmail({
-        id: 'msg_' + Date.now(),
-        to: email.to,
-        subject: email.subject,
-        status: 'Failed',
-        date: new Date().toLocaleString(),
-        msgId: '-',
-        body: email.body,
-        html: email.html,
-      });
+      addEmail({ to: email.to, subject: email.subject, status: 'Failed', msgId: '-', body: email.body, html: email.html });
       toast.error(error.message);
     }
   });

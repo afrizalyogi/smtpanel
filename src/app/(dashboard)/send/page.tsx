@@ -10,6 +10,13 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { Paperclip, X, Save, FolderOpen, ChevronDown } from "lucide-react";
 import { Editor } from "@/components/ui/editor";
+import { formatFrom, sendEmail } from "@/lib/utils";
+
+type ContactField = "to" | "cc" | "bcc" | "replyTo";
+
+const rowClass = "flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0";
+const labelClass = "text-muted text-sm w-full sm:w-20 font-medium";
+const inputClass = "w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50";
 
 type FormData = {
   to: string;
@@ -28,9 +35,9 @@ export default function SendPage() {
   const [showCcBcc, setShowCcBcc] = React.useState(false);
   const [showMoreOptions, setShowMoreOptions] = React.useState(false);
   const [showTemplates, setShowTemplates] = React.useState(false);
-  const [activeContactField, setActiveContactField] = React.useState<"to" | "cc" | "bcc" | "replyTo" | null>(null);
+  const [activeContactField, setActiveContactField] = React.useState<ContactField | null>(null);
   const [attachments, setAttachments] = React.useState<File[]>([]);
-  const { register, handleSubmit, reset, setValue, watch, setFocus } = useForm<FormData>({
+  const { register, handleSubmit, reset, setValue, watch } = useForm<FormData>({
     defaultValues: {
       priority: "normal",
       readReceipt: false,
@@ -48,17 +55,12 @@ export default function SendPage() {
   const watchSubject = watch("subject");
   const watchValues = watch();
 
-  const getFilteredContacts = (field: "to" | "cc" | "bcc" | "replyTo") => {
-    const val = watchValues[field] || "";
-    const sorted = [...contacts].sort((a, b) => a.name.localeCompare(b.name));
-    if (!val) return sorted;
-    const lower = val.toLowerCase();
-    return sorted.filter(c => c.name.toLowerCase().includes(lower) || c.email.toLowerCase().includes(lower));
-  };
-
-  const renderContactDropdown = (field: "to" | "cc" | "bcc" | "replyTo") => {
+  const contactSuggestions = (field: ContactField) => {
     if (activeContactField !== field) return null;
-    const list = getFilteredContacts(field);
+    const query = (watchValues[field] || "").toLowerCase();
+    const list = [...contacts]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .filter(c => c.name.toLowerCase().includes(query) || c.email.toLowerCase().includes(query));
     if (list.length === 0) return null;
 
     return (
@@ -83,48 +85,46 @@ export default function SendPage() {
     );
   };
 
-  const fromDisplay = identity.fromName && identity.fromEmail 
-    ? `${identity.fromName} <${identity.fromEmail}>`
-    : identity.fromEmail || "";
+  const contactInput = (field: ContactField, type: string, placeholder: string) => (
+    <>
+      <input
+        type={type}
+        placeholder={placeholder}
+        className={inputClass}
+        disabled={sendMutation.isPending}
+        autoComplete="off"
+        onFocus={() => setActiveContactField(field)}
+        {...register(field, { onBlur: () => setActiveContactField(null) })}
+      />
+      {contactSuggestions(field)}
+    </>
+  );
+
+  const contactRow = (field: ContactField, label: string, type: string, placeholder: string) => (
+    <div className={rowClass}>
+      <span className={labelClass}>{label}</span>
+      <div className="flex-1 relative w-full">{contactInput(field, type, placeholder)}</div>
+    </div>
+  );
+
+  const fromDisplay = formatFrom(identity);
 
   const sendMutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const formData = new FormData();
-      formData.append("to", data.to);
-      if (data.cc) formData.append("cc", data.cc);
-      if (data.bcc) formData.append("bcc", data.bcc);
-      if (data.replyTo) formData.append("replyTo", data.replyTo);
-      if (data.inReplyTo) formData.append("inReplyTo", data.inReplyTo);
-      if (data.priority && data.priority !== "normal") formData.append("priority", data.priority);
-      if (data.readReceipt) formData.append("readReceipt", "true");
-      formData.append("subject", data.subject);
-      if (fromDisplay) formData.append("fromDisplay", fromDisplay);
-      
-      formData.append("html", data.body);
-
-      attachments.forEach((file) => {
-        formData.append("attachments", file);
-      });
-
-      const res = await fetch('/api/emails/send', {
-        method: 'POST',
-        body: formData
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Failed to send email');
-      return { data, msgId: json.messageId || '<unknown>' };
-    },
-    onSuccess: ({ data, msgId }) => {
-      addEmail({
-        id: 'msg_' + Date.now(),
+    mutationFn: (data: FormData) =>
+      sendEmail({
         to: data.to,
+        cc: data.cc,
+        bcc: data.bcc,
+        replyTo: data.replyTo,
+        inReplyTo: data.inReplyTo,
+        priority: data.priority !== "normal" ? data.priority : undefined,
+        readReceipt: data.readReceipt ? "true" : undefined,
         subject: data.subject,
-        status: 'Sent',
-        date: new Date().toLocaleString(),
-        msgId,
-        body: data.body,
-        html: true,
-      });
+        fromDisplay,
+        html: data.body,
+      }, attachments),
+    onSuccess: (msgId, data) => {
+      addEmail({ to: data.to, subject: data.subject, status: 'Sent', msgId, body: data.body, html: true });
       toast.success("Email sent successfully.");
       reset();
       setAttachments([]);
@@ -132,17 +132,8 @@ export default function SendPage() {
       setShowMoreOptions(false);
       router.push("/sent");
     },
-    onError: (error: Error, variables) => {
-      addEmail({
-        id: 'msg_' + Date.now(),
-        to: variables.to,
-        subject: variables.subject,
-        status: 'Failed',
-        date: new Date().toLocaleString(),
-        msgId: '-',
-        body: variables.body,
-        html: true,
-      });
+    onError: (error: Error, data) => {
+      addEmail({ to: data.to, subject: data.subject, status: 'Failed', msgId: '-', body: data.body, html: true });
       toast.error(error.message);
     }
   });
@@ -250,26 +241,15 @@ export default function SendPage() {
         
         {/* From Field (Muted) */}
         <div className="flex flex-col sm:flex-row sm:items-center px-4 py-3 border-b border-border-soft bg-surface-warm/30 gap-1 sm:gap-0">
-          <span className="text-muted text-sm w-full sm:w-20 font-medium">From</span>
+          <span className={labelClass}>From</span>
           <span className="flex-1 text-sm text-fg-2 break-all">{fromDisplay || "Not configured (Using SMTP Username)"}</span>
         </div>
 
         {/* To Field with Cc/Bcc Toggle */}
         <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft group focus-within:bg-surface-warm/10 transition-colors relative gap-1 sm:gap-0">
-          <span className="text-muted text-sm w-full sm:w-20 font-medium">To</span>
+          <span className={labelClass}>To</span>
           <div className="flex-1 flex items-center relative w-full">
-            <input 
-              type="email" 
-              placeholder="recipient@example.com"
-              className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
-              disabled={sendMutation.isPending}
-              autoComplete="off"
-              onFocus={() => setActiveContactField("to")}
-              {...register("to", {
-                onBlur: () => setActiveContactField(null),
-              })} 
-            />
-            {renderContactDropdown("to")}
+            {contactInput("to", "email", "recipient@example.com")}
           </div>
           
           {!showCcBcc && (
@@ -286,51 +266,19 @@ export default function SendPage() {
         {/* Cc & Bcc Fields */}
         {showCcBcc && (
           <>
-            <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
-              <span className="text-muted text-sm w-full sm:w-20 font-medium">Cc</span>
-              <div className="flex-1 relative w-full">
-                <input 
-                  type="text" 
-                  placeholder="cc@example.com"
-                  className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
-                  disabled={sendMutation.isPending}
-                  autoComplete="off"
-                  onFocus={() => setActiveContactField("cc")}
-                  {...register("cc", {
-                    onBlur: () => setActiveContactField(null),
-                  })} 
-                />
-                {renderContactDropdown("cc")}
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
-              <span className="text-muted text-sm w-full sm:w-20 font-medium">Bcc</span>
-              <div className="flex-1 relative w-full">
-                <input 
-                  type="text" 
-                  placeholder="bcc@example.com"
-                  className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
-                  disabled={sendMutation.isPending}
-                  autoComplete="off"
-                  onFocus={() => setActiveContactField("bcc")}
-                  {...register("bcc", {
-                    onBlur: () => setActiveContactField(null),
-                  })} 
-                />
-                {renderContactDropdown("bcc")}
-              </div>
-            </div>
+            {contactRow("cc", "Cc", "text", "cc@example.com")}
+            {contactRow("bcc", "Bcc", "text", "bcc@example.com")}
           </>
         )}
 
         {/* Subject Field */}
-        <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
-          <span className="text-muted text-sm w-full sm:w-20 font-medium">Subject</span>
+        <div className={rowClass}>
+          <span className={labelClass}>Subject</span>
           <div className="flex-1 w-full flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
             <input 
               type="text" 
               placeholder="Hello from SMTPanel"
-              className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
+              className={inputClass}
               required 
               disabled={sendMutation.isPending}
               {...register("subject")} 
@@ -350,23 +298,7 @@ export default function SendPage() {
         {/* More Options Fields */}
         {showMoreOptions && (
           <>
-            <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
-              <span className="text-muted text-sm w-full sm:w-20 font-medium">Reply-To</span>
-              <div className="flex-1 relative w-full">
-                <input 
-                  type="email" 
-                  placeholder="reply@example.com"
-                  className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
-                  disabled={sendMutation.isPending}
-                  autoComplete="off"
-                  onFocus={() => setActiveContactField("replyTo")}
-                  {...register("replyTo", {
-                    onBlur: () => setActiveContactField(null),
-                  })} 
-                />
-                {renderContactDropdown("replyTo")}
-              </div>
-            </div>
+            {contactRow("replyTo", "Reply-To", "email", "reply@example.com")}
             <div className="flex flex-col sm:flex-row sm:items-start px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
               <div className="w-full sm:w-20 pt-1">
                 <span className="text-muted text-sm font-medium">In-Reply-To</span>
@@ -375,7 +307,7 @@ export default function SendPage() {
                 <input 
                   type="text" 
                   placeholder="<message-id@domain.com>"
-                  className="w-full bg-transparent outline-none text-sm text-fg placeholder:text-muted/50 py-1 disabled:opacity-50" 
+                  className={inputClass}
                   disabled={sendMutation.isPending}
                   autoComplete="off"
                   {...register("inReplyTo")} 
@@ -383,8 +315,8 @@ export default function SendPage() {
                 <span className="text-xs text-muted/60 mt-0.5">Message-ID to thread this reply</span>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row sm:items-center px-4 py-2.5 border-b border-border-soft focus-within:bg-surface-warm/10 transition-colors gap-1 sm:gap-0">
-              <span className="text-muted text-sm w-full sm:w-20 font-medium">Priority</span>
+            <div className={rowClass}>
+              <span className={labelClass}>Priority</span>
               <div className="relative flex-1 w-full">
                 <select 
                   className="appearance-none w-full bg-transparent outline-none text-sm text-fg py-1 pr-8 disabled:opacity-50 cursor-pointer"

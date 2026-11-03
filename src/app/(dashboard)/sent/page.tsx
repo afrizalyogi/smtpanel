@@ -2,22 +2,18 @@
 
 import * as React from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useAppStore } from "@/store";
-import { Search, Upload, Download, ChevronDown } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { EmailTable } from "@/components/EmailTable";
+import { ImportExportButtons } from "@/components/ImportExportButtons";
+import { useAppStore, type EmailRecord } from "@/store";
+import { downloadJson, importJsonArray } from "@/lib/utils";
+import { Search, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 export default function SentPage() {
-  const router = useRouter();
   const { emails, importHistory } = useAppStore();
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("All");
-  
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const filteredEmails = emails.filter((e) => {
     const matchSearch = e.to.toLowerCase().includes(search.toLowerCase()) || e.subject.toLowerCase().includes(search.toLowerCase());
@@ -30,62 +26,21 @@ export default function SentPage() {
       toast.error("No history to export.");
       return;
     }
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(emails, null, 2));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "smtpanel_history.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    downloadJson(emails, "smtpanel_history.json");
     toast.success("History exported successfully.");
   };
 
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const parsed = JSON.parse(content);
-        if (Array.isArray(parsed)) {
-          importHistory(parsed);
-          toast.success(`Imported ${parsed.length} history records.`);
-        } else {
-          toast.error("Invalid history file format.");
-        }
-      } catch (err) {
-        toast.error("Failed to parse history file.");
-      }
-    };
-    reader.readAsText(file);
-    
-    // reset input
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) =>
+    importJsonArray(event, "history", (items) => {
+      importHistory(items as EmailRecord[]);
+      toast.success(`Imported ${items.length} history records.`);
+    });
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Sent History</h1>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <input 
-            type="file" 
-            accept=".json" 
-            ref={fileInputRef} 
-            className="hidden" 
-            onChange={handleImport} 
-          />
-          <Button variant="secondary" onClick={() => fileInputRef.current?.click()} className="flex-1 sm:flex-none">
-            <Upload className="h-4 w-4 mr-2" />
-            Import
-          </Button>
-          <Button variant="secondary" onClick={handleExport} className="flex-1 sm:flex-none">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
+        <ImportExportButtons onImport={handleImport} onExport={handleExport} />
       </div>
 
       <Card>
@@ -113,46 +68,7 @@ export default function SentPage() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="w-full overflow-x-auto">
-            <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Recipient</TableHead>
-                <TableHead>Subject</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="whitespace-nowrap">Date</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredEmails.length > 0 ? (
-                filteredEmails.map((email) => (
-                  <TableRow key={email.id}>
-                    <TableCell className="font-mono">{email.to}</TableCell>
-                    <TableCell>{email.subject}</TableCell>
-                    <TableCell>
-                      <Badge variant={email.status === "Sent" ? "success" : "danger"}>
-                        {email.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted whitespace-nowrap">{email.date}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => router.push(`/sent/${email.id}`)}>
-                        Detail
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted py-8">
-                    No emails found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          </div>
+          <EmailTable emails={filteredEmails} empty="No emails found." />
         </CardContent>
       </Card>
     </div>

@@ -3,7 +3,6 @@ import crypto from 'crypto';
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
 const SALT_LENGTH = 16;
-const TAG_LENGTH = 16;
 
 /**
  * Gets a derived key from the environment variable ENCRYPTION_KEY.
@@ -20,7 +19,7 @@ function getKey(salt: Buffer): Buffer {
 /**
  * Encrypts an object payload into a base64 string.
  */
-export function encrypt(payload: any): string {
+export function encrypt(payload: unknown): string {
   const text = JSON.stringify(payload);
   const iv = crypto.randomBytes(IV_LENGTH);
   const salt = crypto.randomBytes(SALT_LENGTH);
@@ -40,7 +39,7 @@ export function encrypt(payload: any): string {
 /**
  * Decrypts a base64 string back into the object payload.
  */
-export function decrypt(encryptedData: string): any {
+export function decrypt<T = unknown>(encryptedData: string): T {
   const parts = encryptedData.split(':');
   if (parts.length !== 4) throw new Error('Invalid encrypted data format.');
 
