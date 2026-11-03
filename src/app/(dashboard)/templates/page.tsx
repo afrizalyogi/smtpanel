@@ -43,7 +43,7 @@ export default function TemplatesPage() {
       return;
     }
     if (isAddingNew) {
-      saveTemplate({ id: 'tpl_' + Date.now(), ...editForm, html: true });
+      saveTemplate({ ...editForm, html: true });
       toast.success("Template added successfully.");
     } else if (editingTemplate) {
       updateTemplate(editingTemplate.id, editForm);

@@ -174,7 +174,6 @@ export default function SendPage() {
       return;
     }
     saveTemplate({
-      id: 'tpl_' + Date.now(),
       name: watchSubject,
       subject: watchSubject,
       body: watchBody || "",

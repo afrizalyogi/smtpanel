@@ -1,109 +1,97 @@
 # SMTPanel
 
-SMTPanel is a privacy-first, lightweight web client that allows you to connect to your own SMTP server and manage email sending from a beautiful, modern dashboard. 
+**A self-hosted web client for your own SMTP server. No database, no signup, no telemetry.**
 
-No databases. No telemetry. Your credentials never leave your browser unencrypted.
+Paste your SMTP credentials, write an email, hit send. Contacts, templates and history live in your browser; the server only relays the message.
 
----
+[![CI](https://github.com/afrizalyogi/smtpanel/actions/workflows/ci.yml/badge.svg)](https://github.com/afrizalyogi/smtpanel/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Why SMTPanel?
+**[Live demo →](https://smtpanel.aycorp.id)** · [Docker](#docker) · [Vercel](#vercel)
 
-When you just need to send a quick email, test an SMTP server, or manage a lightweight campaign, setting up a full email marketing platform is overkill. SMTPanel gives you a **Cloudflare-inspired, dark-mode-first dashboard** that connects directly to your existing SMTP provider (Gmail, AWS SES, Mailgun, Postmark, etc.).
+![SMTPanel dashboard](docs/dashboard.png)
 
+## Why
 
-### 🚀 The Lightweight Champion
+You need to send a few emails through Gmail, SES, Mailgun, Postmark or your own Postfix: test a new SMTP setup, reply from a shared address, or send a one-off announcement. A full newsletter platform is overkill, and a desktop mail client wants an IMAP inbox too.
 
-Most self-hosted email and newsletter managers require heavy server resources to run multiple database containers, cron jobs, and background workers. SMTPanel takes a fundamentally different **stateless, zero-database** approach.
+SMTPanel is one small Next.js app:
 
-#### 📊 Minimum Production RAM Requirement
+| | SMTPanel | Listmonk / Mautic / Mailtrain |
+|---|---|---|
+| Database | none | PostgreSQL / MySQL (+ Redis) |
+| Background workers | none | yes |
+| Runs on | Vercel free tier, or a 512 MB VPS | a dedicated server |
+| Best for | ad-hoc and transactional sending | newsletters, bulk campaigns, analytics |
 
-```text
-Mailtrain v2  ████████████████████████████████  4.0 GB  (Node.js + MySQL + Redis)
-Mautic        ████████████████████████████████  4.0 GB  (PHP + MySQL)
-Listmonk      ████████████████                  2.0 GB  (Go + PostgreSQL)
-SMTPanel      ▎                                <0.1 GB  (Stateless, No DB)
+SMTPanel does **not** do bulk campaigns, list management or open tracking. If you need those, use Listmonk.
+
+## Features
+
+- **Any SMTP server**: host, port, TLS and auth are tested before you continue
+- **Rich-text composer** with Cc/Bcc, Reply-To, `In-Reply-To` threading, priority, read receipts and attachments
+- **Templates and contacts** with recipient autocomplete
+- **Sent history** with per-message detail and one-click resend
+- **JSON import/export** for history, templates and contacts, plus a PIN-encrypted token to move your SMTP session to another device
+- Dark and light themes, mobile layout
+
+![Compose view](docs/compose.png)
+
+## Privacy model
+
+- SMTP credentials are encrypted with AES-256-GCM using your `ENCRYPTION_KEY` and stored in an `HttpOnly`, `SameSite=Strict` cookie. Nothing is written to disk on the server.
+- Contacts, templates and history are stored in your browser's `localStorage`. Clearing site data or logging out deletes them.
+- **Settings → SMTP Configuration** can move a session to another device: the browser encrypts your credentials (and optionally your data) with a PIN you choose (PBKDF2 + AES-GCM) before showing the token. The server never sees the PIN.
+- Anyone who can reach your instance can use it to send through *their own* SMTP account. If you host it publicly, that is the intended use; put it behind auth if you don't want that.
+
+## Self-hosting
+
+The only required setting is `ENCRYPTION_KEY`, a random string of at least 32 characters:
+
+```bash
+openssl rand -base64 32
 ```
 
-**Why is SMTPanel virtually weightless?**
-- **Zero Databases:** Contacts, templates, and history are securely saved directly in your browser's LocalStorage. No MySQL, PostgreSQL, or Redis required.
-- **No Background Workers:** All sending processes and connections are entirely stateless.
-- **Edge-Ready:** Deploy it anywhere. You can host it on serverless platforms (like Vercel or Cloudflare Pages) which requires **0 MB of your own server RAM**, or self-host it via Docker on a tiny $3/mo 512MB VPS without breaking a sweat!
+Changing the key logs every session out.
 
-### 🔒 Privacy-First & Stateless (No Database)
-We take your security seriously. **SMTPanel has no database.** 
-* Your SMTP credentials are AES-256 encrypted on the server and stored locally on your device as a secure `HttpOnly` cookie.
-* Email history and statistics are kept purely in your browser's `localStorage`.
-* If you log out or clear your cache, your data is completely gone. 
+### Docker
 
-### 🚀 Key Features
-* **Bring Your Own SMTP:** Connect any SMTP server instantly.
-* **Beautiful Composer:** Write emails in Plain Text or HTML.
-* **Instant Feedback:** Test connections, send emails, and see live success/failure rates.
-* **Lightning Fast:** Built with Next.js, React, and TanStack Query for a snappy, app-like experience.
+```bash
+docker run -d -p 3000:3000 -e ENCRYPTION_KEY="$(openssl rand -base64 32)" ghcr.io/afrizalyogi/smtpanel:latest
+```
 
----
+Open <http://localhost:3000>. To build the image yourself: `docker build -t smtpanel .`
 
-## 🛠️ Tech Stack
+### Vercel
 
-- **Frontend:** React, Next.js (App Router), Tailwind CSS
-- **State Management:** TanStack Query, Zustand (LocalStorage sync)
-- **SMTP Engine:** Nodemailer
-- **Security:** Node.js native `crypto` (AES-256-GCM)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fafrizalyogi%2Fsmtpanel&env=ENCRYPTION_KEY&envDescription=Random%20string%2C%20at%20least%2032%20characters)
 
----
+Vercel limits request bodies to 4.5 MB, so attachments are capped at 4 MB in total.
 
-## 📦 Getting Started & Self-Hosting
+### From source
 
-SMTPanel is incredibly easy to self-host because it requires **no database connection**. All you need is an encryption key.
+Requires Node.js 20.9+.
 
-### Quick Start (Local / Vercel)
+```bash
+git clone https://github.com/afrizalyogi/smtpanel.git
+cd smtpanel
+npm install
+cp .env.example .env.local   # then set ENCRYPTION_KEY
+npm run dev
+```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/afrizalyogi/smtpanel.git
-   cd smtpanel
-   ```
+## Tech stack
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+Next.js (App Router), React 19, Tailwind CSS 4, Zustand (persisted to `localStorage`), TanStack Query, Nodemailer, Node.js `crypto`.
 
-3. Set up environment variables:
-   Copy the example `.env` file:
-   ```bash
-   cp .env.example .env.local
-   ```
-   **Important:** Open `.env.local` and set a secure 32-character encryption key.
-   ```env
-   ENCRYPTION_KEY="your-32-character-ultra-secure-secret"
-   ```
+## Contributing
 
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
+Issues and pull requests are welcome. Before opening a PR, run:
 
-5. Open [http://localhost:3000](http://localhost:3000) with your browser.
+```bash
+npx tsc --noEmit && npm run lint && npm run build
+```
 
-### Deploy with Docker (Recommended for Self-Host)
+## License
 
-A pre-configured Dockerfile is included.
-
-1. Build the image:
-   ```bash
-   docker build -t smtpanel .
-   ```
-
-2. Run the container:
-   ```bash
-   docker run -d -p 3000:3000 -e ENCRYPTION_KEY="your-32-character-ultra-secure-secret" smtpanel
-   ```
-
-### Deploy to Serverless (Vercel/Cloudflare)
-Simply connect your repository to Vercel or Cloudflare Pages and set the `ENCRYPTION_KEY` environment variable. No other configuration is needed!
-
----
-
-## 🛡️ Security Note
-This application acts as a proxy. The server encrypts your credentials using the `ENCRYPTION_KEY` before sending them back to your browser as an HTTP-Only cookie. **Never share or expose your `ENCRYPTION_KEY`**, as changing it will invalidate all currently logged-in sessions.
+[MIT](LICENSE) © Afrizal Yogi

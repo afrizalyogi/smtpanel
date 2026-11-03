@@ -41,7 +41,7 @@ export default function ContactsPage() {
       updateContact(editingId, { ...data, tags });
       toast.success("Contact updated successfully!");
     } else {
-      saveContact({ id: 'contact_' + Date.now(), ...data, tags });
+      saveContact({ ...data, tags });
       toast.success("Contact saved successfully!");
     }
     cancelEdit();

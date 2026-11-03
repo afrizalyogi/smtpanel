@@ -36,12 +36,12 @@ export interface AppState {
   addEmail: (email: Omit<EmailRecord, 'id' | 'date'>) => void;
   importHistory: (emails: EmailRecord[]) => void;
   templates: TemplateRecord[];
-  saveTemplate: (template: TemplateRecord) => void;
+  saveTemplate: (template: Omit<TemplateRecord, 'id'>) => void;
   updateTemplate: (id: string, template: Partial<TemplateRecord>) => void;
   deleteTemplate: (id: string) => void;
   importTemplates: (templates: TemplateRecord[]) => void;
   contacts: ContactRecord[];
-  saveContact: (contact: ContactRecord) => void;
+  saveContact: (contact: Omit<ContactRecord, 'id'>) => void;
   updateContact: (id: string, contact: Partial<ContactRecord>) => void;
   deleteContact: (id: string) => void;
   importContacts: (contacts: ContactRecord[]) => void;
@@ -100,13 +100,13 @@ export const useAppStore = create<AppState>()(
           return { emails: [...added, ...state.emails], stats: addToStats(state.stats, added) };
         }),
 
-      saveTemplate: (template) => set((state) => ({ templates: [...state.templates, template] })),
+      saveTemplate: (template) => set((state) => ({ templates: [...state.templates, { ...template, id: 'tpl_' + Date.now() }] })),
       updateTemplate: (id, patch) => set((state) => ({ templates: patchById(state.templates, id, patch) })),
       deleteTemplate: (id) => set((state) => ({ templates: state.templates.filter((t) => t.id !== id) })),
       importTemplates: (templates) =>
         set((state) => ({ templates: [...state.templates, ...newOnly(state.templates, templates)] })),
 
-      saveContact: (contact) => set((state) => ({ contacts: [...state.contacts, contact] })),
+      saveContact: (contact) => set((state) => ({ contacts: [...state.contacts, { ...contact, id: 'contact_' + Date.now() }] })),
       updateContact: (id, patch) => set((state) => ({ contacts: patchById(state.contacts, id, patch) })),
       deleteContact: (id) => set((state) => ({ contacts: state.contacts.filter((c) => c.id !== id) })),
       importContacts: (contacts) =>
